@@ -1,5 +1,5 @@
-// Small page helpers for Phase 2.
-// Bigger features like search, auth, Supabase, likes, and admin tools come in later phases.
+// Small shared page helpers.
+// Bigger features like Supabase auth and database calls will be added in later phases.
 (function () {
   document.addEventListener("DOMContentLoaded", function () {
     const yearTarget = document.querySelector("[data-current-year]");

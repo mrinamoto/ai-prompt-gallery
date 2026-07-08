@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="AI Prompt Gallery design system preview for a Pinterest-style prompt discovery website."
+      content="Browse a Pinterest-style gallery of AI image prompts with categories, filters, and discovery sections."
     />
-    <title>AI Prompt Gallery - Design System</title>
+    <title>AI Prompt Gallery - Discover AI Image Prompts</title>
     <script src="./assets/js/theme.js"></script>
     <link rel="stylesheet" href="./assets/css/main.css" />
   </head>
@@ -20,9 +20,10 @@
         </a>
 
         <nav class="site-nav" aria-label="Main navigation">
-          <a class="site-nav__link is-active" href="./index.html">Browse</a>
-          <a class="site-nav__link" href="./index.html">Trending</a>
-          <a class="site-nav__link" href="./index.html">Collections</a>
+          <a class="site-nav__link is-active" href="#feed">Browse</a>
+          <a class="site-nav__link" href="#trending">Trending</a>
+          <a class="site-nav__link" href="#new">New</a>
+          <a class="site-nav__link" href="#popular">Popular</a>
         </nav>
 
         <div class="header-actions">
@@ -53,154 +54,196 @@
       </div>
     </header>
 
-    <main class="page-shell">
-      <section class="container section--tight">
-        <p class="eyebrow">Phase 2</p>
-        <div class="split">
-          <div>
-            <h1 class="text-balance">Design system foundation</h1>
+    <main>
+      <section class="home-hero container--wide">
+        <div class="home-hero__grid">
+          <div class="home-hero__copy">
+            <p class="eyebrow">AI prompt discovery</p>
+            <h1 class="text-balance">Browse visual prompts worth saving.</h1>
             <p class="lead">
-              This page previews the reusable styles that will power the homepage,
-              post details, profiles, collections, and admin dashboard in later phases.
+              Explore image ideas by style, category, tool, and popularity. This phase uses demo data only,
+              so everything stays frontend-friendly before Supabase arrives.
             </p>
-            <div class="cluster">
-              <button class="button button--primary" type="button">Primary action</button>
-              <button class="button button--ghost" type="button">Secondary action</button>
-            </div>
           </div>
 
-          <form class="stack" aria-label="Search preview">
-            <label class="sr-only" for="preview-search">Search prompts</label>
-            <div class="search-box">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+          <div class="home-hero__panel">
+            <form class="discover-search" role="search" aria-label="Search demo prompts" data-search-form>
+              <label class="sr-only" for="search-prompts">Search prompts</label>
+              <div class="search-box">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  />
+                </svg>
+                <input
+                  id="search-prompts"
+                  type="search"
+                  placeholder="Search portrait, fantasy, product, neon..."
+                  autocomplete="off"
+                  data-search-input
                 />
-              </svg>
-              <input id="preview-search" type="search" placeholder="Search cinematic portraits" />
+              </div>
+            </form>
+
+            <div class="search-suggestions" aria-label="Recommended searches">
+              <button class="suggestion-button" type="button" data-suggestion="neon">neon</button>
+              <button class="suggestion-button" type="button" data-suggestion="product">product</button>
+              <button class="suggestion-button" type="button" data-suggestion="architecture">architecture</button>
+              <button class="suggestion-button" type="button" data-suggestion="cinematic">cinematic</button>
             </div>
-            <div class="cluster">
-              <button class="chip is-active" type="button">All</button>
-              <button class="chip" type="button">Portrait</button>
-              <button class="chip" type="button">Fantasy</button>
-              <button class="chip" type="button">Product</button>
+
+            <div class="hero-stats" aria-label="Demo gallery statistics">
+              <div class="hero-stat">
+                <strong data-total-posts>12</strong>
+                <span>demo posts</span>
+              </div>
+              <div class="hero-stat">
+                <strong data-category-count>9</strong>
+                <span>categories</span>
+              </div>
+              <div class="hero-stat">
+                <strong data-tool-count>6</strong>
+                <span>AI tools</span>
+              </div>
             </div>
-          </form>
+          </div>
         </div>
       </section>
 
-      <section class="container section">
-        <div class="section-header">
-          <div class="section-header__copy">
-            <p class="eyebrow">Components</p>
-            <h2>Reusable interface pieces</h2>
+      <section class="filter-shell" aria-label="Prompt filters">
+        <div class="container--wide filter-shell__inner">
+          <div class="filter-row">
+            <div class="filter-group filter-group--scroll" data-category-filters aria-label="Category filters"></div>
+
+            <div class="filter-tools">
+              <label for="tool-filter">Tool</label>
+              <select id="tool-filter" class="filter-select" data-tool-filter></select>
+            </div>
           </div>
-          <div class="tabs" aria-label="Content sort preview">
-            <button class="tab is-active" type="button">Newest</button>
-            <button class="tab" type="button">Popular</button>
-            <button class="tab" type="button">Rated</button>
+
+          <div class="filter-row">
+            <div class="tabs" data-sort-tabs aria-label="Sort demo posts">
+              <button class="tab is-active" type="button" data-sort="for-you">For you</button>
+              <button class="tab" type="button" data-sort="trending">Trending</button>
+              <button class="tab" type="button" data-sort="popular">Popular</button>
+              <button class="tab" type="button" data-sort="newest">Newest</button>
+            </div>
+            <p class="feed-count mb-0" data-result-count>Loading results</p>
           </div>
         </div>
+      </section>
 
-        <div class="auto-grid">
-          <article class="prompt-card">
-            <div class="prompt-card__media prompt-card__media--tall" aria-hidden="true"></div>
-            <div class="prompt-card__body">
-              <div class="cluster">
-                <span class="badge">Portrait</span>
-                <span class="badge badge--accent">Midjourney</span>
-              </div>
-              <h3 class="prompt-card__title">Editorial neon portrait</h3>
-              <div class="prompt-card__meta">
-                <span>2.8k views</span>
-                <span class="rating-stars" aria-label="Rating 4 out of 5">&#9733;&#9733;&#9733;&#9733;</span>
-              </div>
+      <section class="container--wide feed-layout" id="feed">
+        <aside class="feed-sidebar" aria-label="Discovery highlights">
+          <article class="card stack">
+            <div>
+              <span class="badge badge--gold">Trending</span>
+              <h3>Trending now</h3>
             </div>
-          </article>
-
-          <article class="prompt-card">
-            <div class="prompt-card__media prompt-card__media--wide" aria-hidden="true"></div>
-            <div class="prompt-card__body">
-              <div class="cluster">
-                <span class="badge badge--gold">Trending</span>
-                <span class="badge badge--accent">DALL-E</span>
-              </div>
-              <h3 class="prompt-card__title">Luxury product render</h3>
-              <div class="prompt-card__meta">
-                <span>1.6k likes</span>
-                <span class="rating-stars" aria-label="Rating 5 out of 5">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-              </div>
-            </div>
+            <div class="mini-list" data-trending-list></div>
           </article>
 
           <article class="card stack">
             <div>
-              <span class="badge badge--accent">Admin form</span>
-              <h3>Form controls</h3>
+              <span class="badge badge--accent">New</span>
+              <h3>Fresh drops</h3>
             </div>
-            <div class="form-grid">
-              <label class="field">
-                <span>Title</span>
-                <input class="input" type="text" value="Dreamlike city skyline" />
-              </label>
-              <label class="field">
-                <span>Category</span>
-                <select class="select">
-                  <option>Architecture</option>
-                  <option>Portrait</option>
-                  <option>Fantasy</option>
-                </select>
-              </label>
-              <label class="field form-grid__full">
-                <span>Prompt</span>
-                <textarea class="textarea">A refined AI prompt will appear here in Phase 4.</textarea>
-              </label>
-            </div>
-            <p class="helper-text">These controls will be reused in login, comments, collections, and admin screens.</p>
+            <div class="mini-list" data-new-list></div>
           </article>
+
+          <article class="card stack">
+            <div>
+              <span class="badge">Popular</span>
+              <h3>Most saved</h3>
+            </div>
+            <div class="mini-list" data-popular-list></div>
+          </article>
+        </aside>
+
+        <div class="feed-main">
+          <div class="section-header">
+            <div class="section-header__copy">
+              <p class="eyebrow">Masonry feed</p>
+              <h2 data-active-label>All prompts</h2>
+            </div>
+          </div>
+
+          <div class="feed-skeleton" data-loading aria-label="Loading demo posts"></div>
+          <div class="masonry-feed" data-feed hidden></div>
+          <div class="empty-state" data-empty hidden>
+            <p class="mb-0">No demo prompts matched that search. Try a different keyword or category.</p>
+          </div>
         </div>
       </section>
 
-      <section class="container section">
+      <section class="container--wide section" id="trending">
         <div class="section-header">
           <div class="section-header__copy">
-            <p class="eyebrow">System</p>
-            <h2>States and dashboard blocks</h2>
+            <p class="eyebrow">Discovery rows</p>
+            <h2>Trending prompts</h2>
           </div>
         </div>
+        <div class="rail-grid" data-trending-rail></div>
+      </section>
 
-        <div class="grid grid--3">
-          <article class="stat-card">
-            <span class="stat-card__value">128</span>
-            <span class="stat-card__label">Published prompts</span>
-          </article>
-          <article class="stat-card">
-            <span class="stat-card__value">4.8</span>
-            <span class="stat-card__label">Average rating</span>
-          </article>
-          <article class="stat-card">
-            <span class="stat-card__value">32k</span>
-            <span class="stat-card__label">Total views</span>
-          </article>
-        </div>
-
-        <div class="section">
-          <div class="empty-state">
-            <p class="mb-0">Empty states are ready for search results, saved posts, and collections.</p>
+      <section class="container--wide section" id="new">
+        <div class="section-header">
+          <div class="section-header__copy">
+            <p class="eyebrow">Recently added</p>
+            <h2>Newest posts</h2>
           </div>
         </div>
+        <div class="rail-grid" data-new-rail></div>
+      </section>
+
+      <section class="container--wide section" id="popular">
+        <div class="section-header">
+          <div class="section-header__copy">
+            <p class="eyebrow">Community favorites</p>
+            <h2>Popular posts</h2>
+          </div>
+        </div>
+        <div class="rail-grid" data-popular-rail></div>
       </section>
     </main>
 
-    <footer class="container section--tight text-muted">
-      <small>&copy; <span data-current-year></span> AI Prompt Gallery. Phase 2 foundation.</small>
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+      <a class="is-active" href="#feed">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10.5Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2" />
+        </svg>
+        Home
+      </a>
+      <button type="button" data-focus-search>
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" />
+        </svg>
+        Search
+      </button>
+      <a href="#trending">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m13 2-2 8h7l-9 12 2-8H4l9-12Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2" />
+        </svg>
+        Trending
+      </a>
+      <a href="#popular">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 21 12 17 5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2" />
+        </svg>
+        Saved
+      </a>
+    </nav>
+
+    <footer class="container--wide section--tight text-muted">
+      <small>&copy; <span data-current-year></span> AI Prompt Gallery. Phase 3 demo homepage.</small>
     </footer>
 
     <script src="./assets/js/app.js"></script>
+    <script src="./assets/js/home.js"></script>
   </body>
 </html>
