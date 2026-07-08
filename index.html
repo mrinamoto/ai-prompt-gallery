@@ -49,7 +49,10 @@
               />
             </svg>
           </button>
-          <button class="button button--primary button--sm" type="button">Sign in</button>
+          <a class="button button--primary button--sm" href="./auth.html" data-auth-link>
+            <span data-auth-label>Sign in</span>
+          </a>
+          <button class="button button--ghost button--sm" type="button" data-logout hidden>Logout</button>
         </div>
       </div>
     </header>
@@ -231,20 +234,21 @@
         </svg>
         Trending
       </a>
-      <a href="#popular">
+      <a href="./auth.html" data-auth-link>
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M19 21 12 17 5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2" />
+          <path d="M19 20a7 7 0 0 0-14 0M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
         </svg>
-        Saved
+        <span data-auth-label>Sign in</span>
       </a>
     </nav>
 
     <footer class="container--wide section--tight text-muted">
-      <small>&copy; <span data-current-year></span> AI Prompt Gallery. Phase 4 demo homepage.</small>
+      <small>&copy; <span data-current-year></span> AI Prompt Gallery. Phase 6 authentication foundation.</small>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./assets/js/supabase-client.js"></script>
+    <script src="./assets/js/auth-state.js"></script>
     <script src="./assets/js/app.js"></script>
     <script src="./assets/js/demo-data.js"></script>
     <script src="./assets/js/home.js"></script>

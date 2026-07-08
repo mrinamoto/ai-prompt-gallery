@@ -49,7 +49,10 @@
               />
             </svg>
           </button>
-          <button class="button button--primary button--sm" type="button">Sign in</button>
+          <a class="button button--primary button--sm" href="./auth.html" data-auth-link>
+            <span data-auth-label>Sign in</span>
+          </a>
+          <button class="button button--ghost button--sm" type="button" data-logout hidden>Logout</button>
         </div>
       </div>
     </header>
@@ -194,11 +197,12 @@
     </main>
 
     <footer class="container--wide section--tight text-muted">
-      <small>&copy; <span data-current-year></span> AI Prompt Gallery. Phase 4 demo details page.</small>
+      <small>&copy; <span data-current-year></span> AI Prompt Gallery. Phase 6 authentication foundation.</small>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./assets/js/supabase-client.js"></script>
+    <script src="./assets/js/auth-state.js"></script>
     <script src="./assets/js/app.js"></script>
     <script src="./assets/js/demo-data.js"></script>
     <script src="./assets/js/post.js"></script>

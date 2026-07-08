@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Create an account, sign in, reset your password, or continue with Google for AI Prompt Gallery."
+    />
+    <title>Sign In - AI Prompt Gallery</title>
+    <script src="./assets/js/theme.js"></script>
+    <link rel="stylesheet" href="./assets/css/main.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="container app-header__inner">
+        <a class="brand" href="./index.html" aria-label="AI Prompt Gallery home">
+          <span class="brand__mark">PG</span>
+          <span class="brand__text">Prompt Gallery</span>
+        </a>
+
+        <nav class="site-nav" aria-label="Main navigation">
+          <a class="site-nav__link" href="./index.html#feed">Browse</a>
+          <a class="site-nav__link" href="./index.html#trending">Trending</a>
+          <a class="site-nav__link" href="./index.html#new">New</a>
+          <a class="site-nav__link" href="./index.html#popular">Popular</a>
+        </nav>
+
+        <div class="header-actions">
+          <button class="icon-button" type="button" data-theme-toggle aria-label="Switch color theme">
+            <svg class="icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 4V2m0 20v-2m8-8h2M2 12h2m13.66-5.66 1.41-1.41M4.93 19.07l1.41-1.41m0-11.32L4.93 4.93m14.14 14.14-1.41-1.41M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+              />
+            </svg>
+            <svg class="icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M20.5 15.5A8.5 8.5 0 0 1 8.5 3.5 7 7 0 1 0 20.5 15.5Z"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+              />
+            </svg>
+          </button>
+          <a class="button button--ghost button--sm" href="./index.html#feed">Browse</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="auth-page container--wide">
+      <section class="auth-layout">
+        <div class="auth-copy">
+          <p class="eyebrow">Phase 6 authentication</p>
+          <h1 class="text-balance">Save prompts with your own account.</h1>
+          <p class="lead">
+            Sign up with email, log in later, reset a forgotten password, or continue with Google after it is enabled in Supabase.
+          </p>
+          <div class="cluster mt-5">
+            <span class="badge">Session persistence</span>
+            <span class="badge badge--accent">Protected pages</span>
+            <span class="badge badge--gold">Profile creation</span>
+          </div>
+        </div>
+
+        <section class="auth-panel" aria-label="Authentication forms">
+          <div class="auth-tabs" role="tablist" aria-label="Authentication options">
+            <button class="auth-tab" type="button" data-auth-mode="login">Log in</button>
+            <button class="auth-tab" type="button" data-auth-mode="signup">Sign up</button>
+            <button class="auth-tab" type="button" data-auth-mode="forgot">Reset</button>
+          </div>
+
+          <form class="auth-form" data-auth-form="login" autocomplete="on">
+            <label class="field">
+              <span>Email</span>
+              <input class="input" type="email" name="email" autocomplete="email" required />
+            </label>
+            <label class="field">
+              <span>Password</span>
+              <input class="input" type="password" name="password" autocomplete="current-password" required />
+            </label>
+            <button class="button button--primary" type="submit">Log in</button>
+          </form>
+
+          <form class="auth-form" data-auth-form="signup" autocomplete="on" hidden>
+            <label class="field">
+              <span>Display name</span>
+              <input class="input" type="text" name="display_name" autocomplete="name" maxlength="80" required />
+            </label>
+            <label class="field">
+              <span>Username</span>
+              <input class="input" type="text" name="username" autocomplete="username" minlength="3" maxlength="30" required />
+            </label>
+            <label class="field">
+              <span>Email</span>
+              <input class="input" type="email" name="email" autocomplete="email" required />
+            </label>
+            <label class="field">
+              <span>Password</span>
+              <input class="input" type="password" name="password" autocomplete="new-password" minlength="8" required />
+            </label>
+            <button class="button button--primary" type="submit">Create account</button>
+            <p class="helper-text">Use at least 8 characters. If email confirmation is enabled, Supabase will send a confirmation link.</p>
+          </form>
+
+          <form class="auth-form" data-auth-form="forgot" autocomplete="on" hidden>
+            <label class="field">
+              <span>Email</span>
+              <input class="input" type="email" name="email" autocomplete="email" required />
+            </label>
+            <button class="button button--primary" type="submit">Send reset email</button>
+            <p class="helper-text">The reset link returns here and opens the new password form.</p>
+          </form>
+
+          <form class="auth-form" data-auth-form="reset" hidden>
+            <label class="field">
+              <span>New password</span>
+              <input class="input" type="password" name="password" autocomplete="new-password" minlength="8" required />
+            </label>
+            <button class="button button--primary" type="submit">Update password</button>
+          </form>
+
+          <div class="auth-divider mt-5">or</div>
+
+          <button class="button button--ghost mt-4" type="button" data-google-login>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21.8 12.2c0-.7-.1-1.3-.2-1.9H12v3.6h5.5a4.7 4.7 0 0 1-2 3.1v2.6h3.2c1.9-1.7 3.1-4.2 3.1-7.4Z" fill="currentColor" opacity=".9" />
+              <path d="M12 22c2.7 0 5-0.9 6.7-2.4L15.5 17c-.9.6-2 .9-3.5.9a6 6 0 0 1-5.6-4.1H3.1v2.7A10 10 0 0 0 12 22Z" fill="currentColor" opacity=".65" />
+              <path d="M6.4 13.8a6 6 0 0 1 0-3.6V7.5H3.1a10 10 0 0 0 0 9l3.3-2.7Z" fill="currentColor" opacity=".75" />
+              <path d="M12 6.1c1.5 0 2.8.5 3.8 1.5l2.9-2.9A9.7 9.7 0 0 0 12 2a10 10 0 0 0-8.9 5.5l3.3 2.7A6 6 0 0 1 12 6.1Z" fill="currentColor" />
+            </svg>
+            Continue with Google
+          </button>
+
+          <p class="status-message mt-4" data-auth-status aria-live="polite"></p>
+        </section>
+      </section>
+    </main>
+
+    <footer class="container--wide section--tight text-muted">
+      <small>&copy; <span data-current-year></span> AI Prompt Gallery. Phase 6 authentication foundation.</small>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./assets/js/supabase-client.js"></script>
+    <script src="./assets/js/auth-state.js"></script>
+    <script src="./assets/js/app.js"></script>
+    <script src="./assets/js/auth-page.js"></script>
+  </body>
+</html>

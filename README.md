@@ -15,7 +15,7 @@ No React, Next.js, npm build step, or paid tools are required.
 
 ## Current Phase
 
-Phase 5 is complete: Supabase setup.
+Phase 6 is complete: Supabase Authentication.
 
 Phase 1 created the local project folder, Git-ready housekeeping files, VS Code helper settings, and a small browser test page.
 
@@ -27,6 +27,8 @@ Phase 4 added the post details page with full image, prompt, copy button, metada
 
 Phase 5 added the Supabase client placeholder, full database SQL, storage bucket setup, Row Level Security policies, and beginner setup steps.
 
+Phase 6 added sign up, login, logout, forgot password, session persistence, Google login support, protected account page routing, and profile creation.
+
 ## Folder Structure
 
 ```text
@@ -37,6 +39,7 @@ ai-prompt-gallery/
 |-- assets/
 |   |-- css/
 |   |   |-- base.css
+|   |   |-- auth.css
 |   |   |-- components.css
 |   |   |-- home.css
 |   |   |-- layout.css
@@ -47,7 +50,10 @@ ai-prompt-gallery/
 |   |-- icons/
 |   |-- images/
 |   `-- js/
+|       |-- account.js
 |       |-- app.js
+|       |-- auth-page.js
+|       |-- auth-state.js
 |       |-- demo-data.js
 |       |-- home.js
 |       |-- post.js
@@ -62,9 +68,14 @@ ai-prompt-gallery/
 |   |-- phase-02-folder-structure-design-system.md
 |   |-- phase-03-homepage-masonry-feed.md
 |   |-- phase-04-post-details-page.md
-|   `-- phase-05-supabase-setup.md
+|   |-- phase-05-supabase-setup.md
+|   `-- phase-06-authentication.md
+|-- tools/
+|   `-- local-server.js
 |-- .editorconfig
 |-- .gitignore
+|-- account.html
+|-- auth.html
 |-- index.html
 |-- post.html
 |-- README.md
@@ -86,6 +97,22 @@ Open `index.html` in your browser to use the demo homepage, then click an image 
 
 For Supabase setup, run `database/schema.sql` in Supabase SQL Editor, then run `database/make-admin.sql` after replacing the placeholder email.
 
+For auth testing, run a simple local server and open `auth.html`:
+
+```powershell
+node tools/local-server.js
+```
+
+Then visit:
+
+```text
+http://localhost:5500/auth.html
+```
+
+If Node is not installed on your Windows machine, use the VS Code Live Server extension or try `python -m http.server 5500`.
+
+Use `account.html` to test the protected account page.
+
 Open `setup-check.html` in your browser if you want to confirm the Phase 1 setup page still works.
 
 You can also open this folder in VS Code and run `git status` to check your local changes.
@@ -97,3 +124,4 @@ You can also open this folder in VS Code and run `git status` to check your loca
 - `docs/phase-03-homepage-masonry-feed.md`
 - `docs/phase-04-post-details-page.md`
 - `docs/phase-05-supabase-setup.md`
+- `docs/phase-06-authentication.md`

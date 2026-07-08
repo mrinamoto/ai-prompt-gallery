@@ -570,6 +570,12 @@ on public.profiles for select
 to authenticated
 using (true);
 
+drop policy if exists "Users can create own profile if missing" on public.profiles;
+create policy "Users can create own profile if missing"
+on public.profiles for insert
+to authenticated
+with check ((select auth.uid()) = id and role = 'user');
+
 drop policy if exists "Users can update own profile and admins can update all profiles" on public.profiles;
 create policy "Users can update own profile and admins can update all profiles"
 on public.profiles for update
