@@ -238,6 +238,32 @@ create trigger ratings_set_updated_at
 before update on public.ratings
 for each row execute function public.set_updated_at();
 
+create or replace function public.prevent_rating_identity_change()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  if
+    (
+      new.post_id is distinct from old.post_id
+      or new.user_id is distinct from old.user_id
+    )
+    and not public.is_admin()
+    and current_user not in ('postgres', 'service_role', 'supabase_admin')
+  then
+    raise exception 'Users can update rating value only.';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists ratings_prevent_identity_change on public.ratings;
+create trigger ratings_prevent_identity_change
+before update on public.ratings
+for each row execute function public.prevent_rating_identity_change();
+
 create table if not exists public.comments (
   id uuid primary key default gen_random_uuid(),
   post_id uuid not null references public.posts(id) on delete cascade,
@@ -267,10 +293,37 @@ begin
 end;
 $$;
 
+create or replace function public.prevent_comment_identity_change()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  if
+    (
+      new.post_id is distinct from old.post_id
+      or new.user_id is distinct from old.user_id
+      or new.parent_id is distinct from old.parent_id
+    )
+    and not public.is_admin()
+    and current_user not in ('postgres', 'service_role', 'supabase_admin')
+  then
+    raise exception 'Users can update comment text only.';
+  end if;
+
+  return new;
+end;
+$$;
+
 drop trigger if exists comments_set_updated_at on public.comments;
 create trigger comments_set_updated_at
 before update on public.comments
 for each row execute function public.set_updated_at();
+
+drop trigger if exists comments_prevent_identity_change on public.comments;
+create trigger comments_prevent_identity_change
+before update on public.comments
+for each row execute function public.prevent_comment_identity_change();
 
 drop trigger if exists comments_prevent_approval_change on public.comments;
 create trigger comments_prevent_approval_change

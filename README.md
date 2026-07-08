@@ -15,7 +15,7 @@ No React, Next.js, npm build step, or paid tools are required.
 
 ## Current Phase
 
-Phase 6 is complete: Supabase Authentication.
+Phase 7 is complete: Supabase likes, ratings, comments, and saves.
 
 Phase 1 created the local project folder, Git-ready housekeeping files, VS Code helper settings, and a small browser test page.
 
@@ -28,6 +28,8 @@ Phase 4 added the post details page with full image, prompt, copy button, metada
 Phase 5 added the Supabase client placeholder, full database SQL, storage bucket setup, Row Level Security policies, and beginner setup steps.
 
 Phase 6 added sign up, login, logout, forgot password, session persistence, Google login support, protected account page routing, and profile creation.
+
+Phase 7 connected post detail interactions to Supabase for real database posts: likes, saves, one rating per user, comments, comment editing/deleting, and view tracking.
 
 ## Folder Structure
 
@@ -69,7 +71,8 @@ ai-prompt-gallery/
 |   |-- phase-03-homepage-masonry-feed.md
 |   |-- phase-04-post-details-page.md
 |   |-- phase-05-supabase-setup.md
-|   `-- phase-06-authentication.md
+|   |-- phase-06-authentication.md
+|   `-- phase-07-likes-ratings-comments-saves.md
 |-- tools/
 |   `-- local-server.js
 |-- .editorconfig
@@ -113,6 +116,12 @@ If Node is not installed on your Windows machine, use the VS Code Live Server ex
 
 Use `account.html` to test the protected account page.
 
+Use a real Supabase post UUID to test Phase 7 interactions:
+
+```text
+http://localhost:5500/post.html?id=YOUR_SUPABASE_POST_UUID
+```
+
 Open `setup-check.html` in your browser if you want to confirm the Phase 1 setup page still works.
 
 You can also open this folder in VS Code and run `git status` to check your local changes.
@@ -125,3 +134,4 @@ You can also open this folder in VS Code and run `git status` to check your loca
 - `docs/phase-04-post-details-page.md`
 - `docs/phase-05-supabase-setup.md`
 - `docs/phase-06-authentication.md`
+- `docs/phase-07-likes-ratings-comments-saves.md`

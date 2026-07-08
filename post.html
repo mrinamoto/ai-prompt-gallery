@@ -67,7 +67,7 @@
 
       <section class="not-found-panel card stack" data-not-found hidden>
         <p class="eyebrow">Post not found</p>
-        <h1>That demo post does not exist.</h1>
+        <h1>That post does not exist.</h1>
         <p class="lead">Return to the homepage and open one of the available prompt cards.</p>
         <a class="button button--primary" href="./index.html#feed">Browse prompts</a>
       </section>
@@ -110,15 +110,30 @@
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2" />
                 </svg>
-                Like
+                <span data-like-label>Like</span>
               </button>
               <button class="button button--ghost" type="button" data-save-post>
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M19 21 12 17 5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2" />
                 </svg>
-                Save
+                <span data-save-label>Save</span>
               </button>
             </div>
+
+            <section class="rating-panel" aria-label="Rate this prompt">
+              <div>
+                <p class="eyebrow">Your rating</p>
+                <h2>Rate this prompt</h2>
+              </div>
+              <div class="rating-control" data-rating-control aria-label="Choose a rating from 1 to 5">
+                <button class="star-button" type="button" data-rate-post="1" aria-label="Rate 1 star">&#9733;</button>
+                <button class="star-button" type="button" data-rate-post="2" aria-label="Rate 2 stars">&#9733;</button>
+                <button class="star-button" type="button" data-rate-post="3" aria-label="Rate 3 stars">&#9733;</button>
+                <button class="star-button" type="button" data-rate-post="4" aria-label="Rate 4 stars">&#9733;</button>
+                <button class="star-button" type="button" data-rate-post="5" aria-label="Rate 5 stars">&#9733;</button>
+              </div>
+              <p class="helper-text mb-0" data-rating-help>Sign in to rate real Supabase posts.</p>
+            </section>
 
             <div class="post-metrics" aria-label="Post statistics">
               <div class="post-metric">
@@ -166,19 +181,33 @@
               <div class="detail-list" data-post-details></div>
               <div class="tag-row" data-post-tags></div>
               <p class="helper-text">
-                These values are demo data in Phase 4. Supabase will provide real metadata later.
+                <span data-post-source-note>These values are demo data unless you open a Supabase post.</span>
               </p>
               <span class="sr-only" data-post-aspect></span>
               <span class="sr-only" data-post-created></span>
             </section>
 
-            <section class="stack">
+            <section class="comment-section card stack">
               <div class="section-header">
                 <div class="section-header__copy">
-                  <p class="eyebrow">Comments preview</p>
-                  <h2>What people noticed</h2>
+                  <p class="eyebrow">Comments</p>
+                  <h2>Community notes</h2>
                 </div>
               </div>
+
+              <form class="comment-form" data-comment-form hidden>
+                <label class="field">
+                  <span>Add a comment</span>
+                  <textarea class="textarea" name="body" maxlength="2000" required data-comment-body></textarea>
+                </label>
+                <button class="button button--primary" type="submit">Post comment</button>
+              </form>
+
+              <div class="notice" data-comment-auth-note hidden>
+                <p class="mb-0">Sign in to add comments, manage your own comments, save posts, and rate prompts.</p>
+              </div>
+
+              <p class="status-message" data-comment-status aria-live="polite"></p>
               <div class="comments-preview" data-comments-preview></div>
             </section>
           </article>
@@ -197,7 +226,7 @@
     </main>
 
     <footer class="container--wide section--tight text-muted">
-      <small>&copy; <span data-current-year></span> AI Prompt Gallery. Phase 6 authentication foundation.</small>
+      <small>&copy; <span data-current-year></span> AI Prompt Gallery. Phase 7 Supabase interactions.</small>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
