@@ -15,13 +15,15 @@ No React, Next.js, npm build step, or paid tools are required.
 
 ## Current Phase
 
-Phase 3 is complete: homepage and Pinterest-style masonry feed.
+Phase 4 is complete: post details page.
 
 Phase 1 created the local project folder, Git-ready housekeeping files, VS Code helper settings, and a small browser test page.
 
 Phase 2 added the real website structure, CSS design tokens, reusable components, responsive layout rules, and light/dark theme foundations.
 
 Phase 3 added the real homepage experience with temporary demo data, responsive image cards, filters, search, sorting, loading states, mobile navigation, and trending/new/popular sections.
+
+Phase 4 added the post details page with full image, prompt, copy button, metadata, ratings, likes, saves, comments preview, and similar posts.
 
 ## Folder Structure
 
@@ -37,22 +39,27 @@ ai-prompt-gallery/
 |   |   |-- home.css
 |   |   |-- layout.css
 |   |   |-- main.css
+|   |   |-- post.css
 |   |   |-- tokens.css
 |   |   `-- utilities.css
 |   |-- icons/
 |   |-- images/
 |   `-- js/
 |       |-- app.js
+|       |-- demo-data.js
 |       |-- home.js
+|       |-- post.js
 |       `-- theme.js
 |-- database/
 |-- docs/
 |   |-- phase-01-project-setup.md
 |   |-- phase-02-folder-structure-design-system.md
-|   `-- phase-03-homepage-masonry-feed.md
+|   |-- phase-03-homepage-masonry-feed.md
+|   `-- phase-04-post-details-page.md
 |-- .editorconfig
 |-- .gitignore
 |-- index.html
+|-- post.html
 |-- README.md
 `-- setup-check.html
 ```
@@ -68,7 +75,7 @@ This project will only use the anon/public key in the frontend.
 
 ## How To Test This Phase
 
-Open `index.html` in your browser to use the Phase 3 demo homepage.
+Open `index.html` in your browser to use the demo homepage, then click an image to open its details page.
 
 Open `setup-check.html` in your browser if you want to confirm the Phase 1 setup page still works.
 
@@ -79,3 +86,4 @@ You can also open this folder in VS Code and run `git status` to check your loca
 - `docs/phase-01-project-setup.md`
 - `docs/phase-02-folder-structure-design-system.md`
 - `docs/phase-03-homepage-masonry-feed.md`
+- `docs/phase-04-post-details-page.md`

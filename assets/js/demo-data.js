@@ -1,0 +1,293 @@
+// Temporary demo content shared by the homepage and post details page.
+// Supabase database records will replace this file in a later phase.
+window.PromptGalleryDemo = {
+  posts: [
+    {
+      id: 1,
+      title: "Neon Rain Portrait",
+      description: "A cinematic portrait prompt with wet streets, glowing signs, and reflective color.",
+      prompt: "Cinematic close-up portrait of a thoughtful model standing on a rain-soaked city street at night, neon signs reflected in the pavement, soft rim light, shallow depth of field, editorial styling, realistic skin texture, high dynamic range, premium magazine photography.",
+      negativePrompt: "blurry face, extra fingers, distorted eyes, plastic skin, harsh flash, watermark, text overlay",
+      category: "Portrait",
+      tool: "Midjourney",
+      model: "v6",
+      aspectRatio: "4 / 5",
+      tags: ["neon", "portrait", "cinematic"],
+      imageUrl: "https://picsum.photos/seed/neon-rain-portrait/720/900",
+      views: 8400,
+      likes: 1320,
+      saves: 486,
+      rating: 4.9,
+      ratingCount: 214,
+      createdAt: "2026-07-05",
+      trending: true
+    },
+    {
+      id: 2,
+      title: "Glass Product Studio",
+      description: "A premium product render setup with soft reflections and controlled studio light.",
+      prompt: "Luxury translucent glass product on a clean reflective studio surface, softbox reflections, controlled highlights, subtle caustics, minimal background, premium e-commerce campaign, crisp edges, photorealistic product photography.",
+      negativePrompt: "dust, scratches, warped label, messy reflections, text, watermark, low resolution",
+      category: "Product",
+      tool: "DALL-E",
+      model: "3",
+      aspectRatio: "5 / 4",
+      tags: ["product", "studio", "glass"],
+      imageUrl: "https://picsum.photos/seed/glass-product-studio/900/720",
+      views: 6100,
+      likes: 980,
+      saves: 342,
+      rating: 4.7,
+      ratingCount: 168,
+      createdAt: "2026-07-02",
+      trending: true
+    },
+    {
+      id: 3,
+      title: "Floating Garden City",
+      description: "A bright worldbuilding prompt for fantasy architecture and lush vertical spaces.",
+      prompt: "Floating garden city above soft clouds, layered terraces overflowing with greenery, bridges between towers, warm morning light, tiny people for scale, optimistic fantasy architecture concept art, rich detail, atmospheric depth.",
+      negativePrompt: "dark horror mood, broken perspective, muddy colors, empty skyline, blurry details, watermark",
+      category: "Fantasy",
+      tool: "Stable Diffusion",
+      model: "SDXL",
+      aspectRatio: "3 / 4",
+      tags: ["fantasy", "architecture", "garden"],
+      imageUrl: "https://picsum.photos/seed/floating-garden-city/780/1040",
+      views: 9700,
+      likes: 1488,
+      saves: 530,
+      rating: 4.8,
+      ratingCount: 251,
+      createdAt: "2026-06-29",
+      trending: true
+    },
+    {
+      id: 4,
+      title: "Future Transit Hub",
+      description: "A clean architecture prompt with sweeping light, glass, and human-scale detail.",
+      prompt: "Futuristic transit hub with a curved glass roof, natural daylight pouring across polished floors, precise architectural photography, human-scale detail, calm movement, premium civic design, clean composition.",
+      negativePrompt: "cluttered scene, warped beams, impossible stairs, gloomy light, low quality, watermark",
+      category: "Architecture",
+      tool: "Leonardo",
+      model: "Phoenix",
+      aspectRatio: "4 / 5",
+      tags: ["architecture", "future", "glass"],
+      imageUrl: "https://picsum.photos/seed/future-transit-hub/760/950",
+      views: 4200,
+      likes: 670,
+      saves: 188,
+      rating: 4.5,
+      ratingCount: 92,
+      createdAt: "2026-07-06",
+      trending: false
+    },
+    {
+      id: 5,
+      title: "Anime Street Market",
+      description: "A lively night market look with expressive lighting and detailed environment cues.",
+      prompt: "Anime street market at night after light rain, glowing lanterns, cozy food stalls, gentle steam, expressive characters in the background, detailed environment, warm color accents, cinematic composition.",
+      negativePrompt: "flat lighting, empty street, messy hands, unreadable signs, oversaturated colors, watermark",
+      category: "Anime",
+      tool: "NovelAI",
+      model: "Diffusion V3",
+      aspectRatio: "4 / 5",
+      tags: ["anime", "market", "night"],
+      imageUrl: "https://picsum.photos/seed/anime-street-market/760/950",
+      views: 7600,
+      likes: 1215,
+      saves: 409,
+      rating: 4.6,
+      ratingCount: 176,
+      createdAt: "2026-07-01",
+      trending: true
+    },
+    {
+      id: 6,
+      title: "Minimal Landing Hero",
+      description: "A simple UI mockup prompt for modern SaaS pages and clean product storytelling.",
+      prompt: "Minimal SaaS landing page hero mockup, clean interface panels, soft depth, tasteful product dashboard, calm neutral background, generous spacing, modern typography, premium startup visual design.",
+      negativePrompt: "busy marketing page, tiny unreadable text, distorted browser chrome, harsh gradients, watermark",
+      category: "UI Design",
+      tool: "DALL-E",
+      model: "3",
+      aspectRatio: "16 / 10",
+      tags: ["ui", "landing", "saas"],
+      imageUrl: "https://picsum.photos/seed/minimal-landing-hero/960/600",
+      views: 3500,
+      likes: 540,
+      saves: 201,
+      rating: 4.4,
+      ratingCount: 74,
+      createdAt: "2026-07-04",
+      trending: false
+    },
+    {
+      id: 7,
+      title: "Space Opera Poster",
+      description: "A dramatic poster prompt with strong silhouettes and cinematic atmosphere.",
+      prompt: "Space opera poster key art, heroic silhouette overlooking a distant planet, starships crossing the sky, cinematic backlight, dramatic scale, premium film poster composition, rich atmospheric detail.",
+      negativePrompt: "flat poster, weak silhouette, messy spacecraft, unreadable text, watermark, low contrast",
+      category: "Sci-Fi",
+      tool: "Midjourney",
+      model: "v6",
+      aspectRatio: "2 / 3",
+      tags: ["space", "poster", "cinematic"],
+      imageUrl: "https://picsum.photos/seed/space-opera-poster/720/1080",
+      views: 11800,
+      likes: 1850,
+      saves: 790,
+      rating: 4.9,
+      ratingCount: 305,
+      createdAt: "2026-06-25",
+      trending: true
+    },
+    {
+      id: 8,
+      title: "Editorial Fashion Study",
+      description: "A refined fashion prompt with clean styling, strong pose direction, and soft color.",
+      prompt: "Editorial fashion study in a daylight studio, sculptural silhouette, refined styling, soft color palette, confident pose, clean backdrop, realistic textile detail, premium magazine spread.",
+      negativePrompt: "distorted limbs, plastic fabric, harsh shadows, messy background, watermark, text",
+      category: "Fashion",
+      tool: "Firefly",
+      model: "Image 3",
+      aspectRatio: "3 / 4",
+      tags: ["fashion", "editorial", "studio"],
+      imageUrl: "https://picsum.photos/seed/editorial-fashion-study/780/1040",
+      views: 5100,
+      likes: 830,
+      saves: 284,
+      rating: 4.6,
+      ratingCount: 132,
+      createdAt: "2026-07-07",
+      trending: false
+    },
+    {
+      id: 9,
+      title: "Forest Cabin Concept",
+      description: "A peaceful environment prompt with warm windows, fog, and natural texture.",
+      prompt: "Forest cabin at blue hour, warm window light glowing through trees, gentle fog, natural wood texture, cozy cinematic environment design, quiet atmosphere, balanced composition.",
+      negativePrompt: "overgrown clutter, horror mood, muddy fog, broken cabin geometry, watermark",
+      category: "Landscape",
+      tool: "Stable Diffusion",
+      model: "SDXL",
+      aspectRatio: "5 / 4",
+      tags: ["landscape", "cabin", "fog"],
+      imageUrl: "https://picsum.photos/seed/forest-cabin-concept/900/720",
+      views: 6900,
+      likes: 1020,
+      saves: 376,
+      rating: 4.7,
+      ratingCount: 159,
+      createdAt: "2026-06-30",
+      trending: false
+    },
+    {
+      id: 10,
+      title: "Solarpunk Courtyard",
+      description: "A bright environmental design prompt balancing greenery, texture, and community space.",
+      prompt: "Solarpunk courtyard with layered greenery, warm stone, shaded seating, people relaxing, gentle sunlight, optimistic community architecture, natural materials, clean environmental concept art.",
+      negativePrompt: "dystopian mood, dead plants, cluttered composition, warped windows, watermark",
+      category: "Architecture",
+      tool: "Leonardo",
+      model: "Phoenix",
+      aspectRatio: "4 / 5",
+      tags: ["solarpunk", "courtyard", "architecture"],
+      imageUrl: "https://picsum.photos/seed/solarpunk-courtyard/760/950",
+      views: 5900,
+      likes: 900,
+      saves: 318,
+      rating: 4.6,
+      ratingCount: 146,
+      createdAt: "2026-07-03",
+      trending: false
+    },
+    {
+      id: 11,
+      title: "Food Campaign Tabletop",
+      description: "A polished commercial prompt for food photography and ad-ready composition.",
+      prompt: "Commercial tabletop food photography, fresh ingredients arranged naturally, soft daylight, clean premium campaign composition, tactile textures, shallow depth of field, appetizing color balance.",
+      negativePrompt: "messy plate, spoiled food, fake plastic texture, harsh flash, watermark, text overlay",
+      category: "Product",
+      tool: "DALL-E",
+      model: "3",
+      aspectRatio: "4 / 3",
+      tags: ["food", "commercial", "tabletop"],
+      imageUrl: "https://picsum.photos/seed/food-campaign-tabletop/900/675",
+      views: 4700,
+      likes: 720,
+      saves: 264,
+      rating: 4.5,
+      ratingCount: 118,
+      createdAt: "2026-07-08",
+      trending: false
+    },
+    {
+      id: 12,
+      title: "Mythic Character Key Art",
+      description: "A fantasy character prompt with rich materials, atmosphere, and gallery polish.",
+      prompt: "Mythic character key art, ornate armor with etched metal details, atmospheric fantasy background, controlled dramatic light, confident stance, high-detail render, premium concept art finish.",
+      negativePrompt: "extra limbs, muddy armor, flat pose, distorted face, unreadable symbols, watermark",
+      category: "Fantasy",
+      tool: "Midjourney",
+      model: "v6",
+      aspectRatio: "2 / 3",
+      tags: ["character", "fantasy", "armor"],
+      imageUrl: "https://picsum.photos/seed/mythic-character-key-art/720/1080",
+      views: 12600,
+      likes: 2120,
+      saves: 904,
+      rating: 5,
+      ratingCount: 384,
+      createdAt: "2026-07-06",
+      trending: true
+    }
+  ],
+  comments: {
+    1: [
+      {
+        name: "Ayesha",
+        text: "The rim light direction is especially useful. This would be easy to adapt for album cover concepts.",
+        createdAt: "2026-07-07"
+      },
+      {
+        name: "Marco",
+        text: "I copied this and swapped the rain for snow. The mood still worked beautifully.",
+        createdAt: "2026-07-06"
+      }
+    ],
+    2: [
+      {
+        name: "Nina",
+        text: "Great prompt for testing reflection-heavy product ideas without making the scene too busy.",
+        createdAt: "2026-07-03"
+      }
+    ],
+    3: [
+      {
+        name: "Rafi",
+        text: "The scale cues help a lot. Tiny people make the city feel believable.",
+        createdAt: "2026-07-01"
+      }
+    ],
+    7: [
+      {
+        name: "Lena",
+        text: "Strong poster structure. I would save this as a base for sci-fi key art experiments.",
+        createdAt: "2026-06-28"
+      }
+    ],
+    12: [
+      {
+        name: "Sam",
+        text: "The armor detail language is clear without overloading the model.",
+        createdAt: "2026-07-07"
+      },
+      {
+        name: "Priya",
+        text: "Nice balance between character and atmosphere.",
+        createdAt: "2026-07-06"
+      }
+    ]
+  }
+};
