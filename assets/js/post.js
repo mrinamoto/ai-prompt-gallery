@@ -10,6 +10,7 @@
     mode: "demo",
     post: null,
     comments: [],
+    recommendations: [],
     session: null,
     profile: null,
     liked: false,
@@ -103,9 +104,11 @@
   }
 
   function normalizeSupabasePost(row) {
-    const tags = Array.isArray(row.post_tags)
-      ? row.post_tags.map((item) => item.tags?.name).filter(Boolean)
-      : [];
+    const tags = Array.isArray(row.tags)
+      ? row.tags
+      : Array.isArray(row.post_tags)
+        ? row.post_tags.map((item) => item.tags?.name).filter(Boolean)
+        : [];
 
     return {
       id: row.id,
@@ -114,8 +117,8 @@
       description: row.description,
       prompt: row.prompt,
       negativePrompt: row.negative_prompt,
-      category: row.categories?.name || "Uncategorized",
-      categorySlug: row.categories?.slug || "",
+      category: row.category_name || row.categories?.name || "Uncategorized",
+      categorySlug: row.category_slug || row.categories?.slug || "",
       tool: row.ai_tool,
       model: row.ai_model,
       aspectRatio: row.aspect_ratio,
@@ -129,6 +132,28 @@
       commentsCount: row.comments_count || 0,
       createdAt: row.published_at || row.created_at
     };
+  }
+
+  async function fetchSupabaseRecommendations() {
+    if (state.mode !== "supabase") {
+      state.recommendations = [];
+      return;
+    }
+
+    const { data, error } = await getClient().rpc("get_recommended_posts", {
+      p_post_id: state.post.id,
+      p_category_slug: state.post.categorySlug,
+      p_tag_names: state.post.tags,
+      p_limit: 4
+    });
+
+    if (error) {
+      console.warn(error.message);
+      state.recommendations = [];
+      return;
+    }
+
+    state.recommendations = (data || []).map(normalizeSupabasePost);
   }
 
   function normalizeSupabaseComment(row) {
@@ -354,6 +379,10 @@
   }
 
   function getSimilarPosts(post) {
+    if (state.mode === "supabase" && state.recommendations.length) {
+      return state.recommendations;
+    }
+
     return demoPosts
       .filter((candidate) => candidate.id !== post.id)
       .map((candidate) => {
@@ -1045,7 +1074,7 @@
           return;
         }
 
-        await Promise.all([fetchUserPostState(), fetchSupabaseComments()]);
+        await Promise.all([fetchUserPostState(), fetchSupabaseComments(), fetchSupabaseRecommendations()]);
         renderPost(state.post);
         renderCommentTools();
         await recordSupabaseView();

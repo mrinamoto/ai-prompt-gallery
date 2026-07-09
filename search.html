@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Search AI image prompts by title, description, prompt text, category, tags, tool, rating, and popularity."
+    />
+    <title>Search Prompts - AI Prompt Gallery</title>
+    <script src="./assets/js/theme.js"></script>
+    <link rel="stylesheet" href="./assets/css/main.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="container app-header__inner">
+        <a class="brand" href="./index.html" aria-label="AI Prompt Gallery home">
+          <span class="brand__mark">PG</span>
+          <span class="brand__text">Prompt Gallery</span>
+        </a>
+
+        <nav class="site-nav" aria-label="Main navigation">
+          <a class="site-nav__link" href="./index.html#feed">Browse</a>
+          <a class="site-nav__link is-active" href="./search.html">Search</a>
+          <a class="site-nav__link" href="./index.html#trending">Trending</a>
+          <a class="site-nav__link" href="./index.html#new">New</a>
+          <a class="site-nav__link" href="./index.html#popular">Popular</a>
+        </nav>
+
+        <div class="header-actions">
+          <button class="icon-button" type="button" data-theme-toggle aria-label="Switch color theme">
+            <svg class="icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 4V2m0 20v-2m8-8h2M2 12h2m13.66-5.66 1.41-1.41M4.93 19.07l1.41-1.41m0-11.32L4.93 4.93m14.14 14.14-1.41-1.41M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+              />
+            </svg>
+            <svg class="icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M20.5 15.5A8.5 8.5 0 0 1 8.5 3.5 7 7 0 1 0 20.5 15.5Z"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+              />
+            </svg>
+          </button>
+          <a class="button button--primary button--sm" href="./auth.html" data-auth-link>
+            <span data-auth-label>Sign in</span>
+          </a>
+          <button class="button button--ghost button--sm" type="button" data-logout hidden>Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="search-page container--wide">
+        <div class="search-hero">
+          <div>
+            <p class="eyebrow">Phase 8 discovery</p>
+            <h1 class="text-balance">Search prompts by idea, style, category, or tag.</h1>
+            <p class="lead">
+              Find posts through titles, descriptions, full prompt text, categories, and tags. Supabase results are ranked, filtered, and paired with recommendations.
+            </p>
+          </div>
+
+        <section class="search-panel" aria-label="Search prompts">
+          <form class="search-form" role="search" data-search-page-form>
+            <label class="sr-only" for="prompt-search-page">Search prompts</label>
+            <div class="search-submit-row">
+              <div class="search-box">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  />
+                </svg>
+                <input
+                  id="prompt-search-page"
+                  type="search"
+                  placeholder="Try cinematic portrait, product glass, fantasy city..."
+                  autocomplete="off"
+                  data-search-page-input
+                />
+              </div>
+              <button class="button button--primary" type="submit">Search</button>
+            </div>
+          </form>
+
+          <div class="search-suggestions" aria-label="Search suggestions" data-search-suggestions></div>
+          <p class="helper-text mb-0" data-search-mode-note>Loading search mode...</p>
+        </section>
+        </div>
+      </section>
+
+      <section class="search-toolbar" aria-label="Search filters">
+        <div class="container--wide search-toolbar__inner">
+          <label class="field">
+            <span>Category</span>
+            <select class="select" data-search-category></select>
+          </label>
+          <label class="field">
+            <span>AI tool</span>
+            <select class="select" data-search-tool></select>
+          </label>
+          <label class="field">
+            <span>Sort</span>
+            <select class="select" data-search-sort>
+              <option value="relevance">Most relevant</option>
+              <option value="trending">Trending</option>
+              <option value="popular">Popular</option>
+              <option value="rating">Highest rated</option>
+              <option value="newest">Newest</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="container--wide search-layout">
+        <section class="search-main">
+          <div class="section-header">
+            <div class="section-header__copy">
+              <p class="eyebrow">Search results</p>
+              <h2 data-search-heading>Prompt results</h2>
+            </div>
+            <p class="search-status mb-0" data-search-count>Loading</p>
+          </div>
+
+          <div class="feed-skeleton" data-search-loading aria-label="Loading search results"></div>
+          <div class="search-results-grid" data-search-results hidden></div>
+          <div class="empty-state" data-search-empty hidden>
+            <p class="mb-0">No prompts matched that search. Try a broader keyword, a different category, or one of the related searches.</p>
+          </div>
+
+          <section class="recommendation-band">
+            <div class="section-header">
+              <div class="section-header__copy">
+                <p class="eyebrow">Similar prompts</p>
+                <h2>Close matches</h2>
+              </div>
+            </div>
+            <div class="recommendation-row" data-similar-search-results></div>
+          </section>
+
+          <section class="recommendation-band">
+            <div class="section-header">
+              <div class="section-header__copy">
+                <p class="eyebrow">You may also like</p>
+                <h2>Recommended for discovery</h2>
+              </div>
+            </div>
+            <div class="recommendation-row" data-you-may-like></div>
+          </section>
+        </section>
+
+        <aside class="search-sidebar" aria-label="Search recommendations">
+          <article class="card stack">
+            <div>
+              <span class="badge">Related</span>
+              <h3>Related searches</h3>
+            </div>
+            <div class="related-list" data-related-searches></div>
+          </article>
+
+          <article class="card stack">
+            <div>
+              <span class="badge badge--gold">Trending</span>
+              <h3>Trending content</h3>
+            </div>
+            <div class="mini-list" data-search-trending></div>
+          </article>
+
+          <article class="card stack">
+            <div>
+              <span class="badge badge--accent">Filters</span>
+              <h3>Current search</h3>
+            </div>
+            <div class="stack--sm text-muted" data-current-search-summary></div>
+          </article>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="container--wide section--tight text-muted">
+      <small>&copy; <span data-current-year></span> AI Prompt Gallery. Phase 8 search and recommendations.</small>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./assets/js/supabase-client.js"></script>
+    <script src="./assets/js/auth-state.js"></script>
+    <script src="./assets/js/app.js"></script>
+    <script src="./assets/js/demo-data.js"></script>
+    <script src="./assets/js/search.js"></script>
+  </body>
+</html>

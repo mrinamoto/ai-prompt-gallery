@@ -15,7 +15,7 @@ No React, Next.js, npm build step, or paid tools are required.
 
 ## Current Phase
 
-Phase 7 is complete: Supabase likes, ratings, comments, and saves.
+Phase 8 is complete: Search and recommendations.
 
 Phase 1 created the local project folder, Git-ready housekeeping files, VS Code helper settings, and a small browser test page.
 
@@ -30,6 +30,8 @@ Phase 5 added the Supabase client placeholder, full database SQL, storage bucket
 Phase 6 added sign up, login, logout, forgot password, session persistence, Google login support, protected account page routing, and profile creation.
 
 Phase 7 connected post detail interactions to Supabase for real database posts: likes, saves, one rating per user, comments, comment editing/deleting, and view tracking.
+
+Phase 8 added a dedicated search page, search suggestions, filters, related searches, trending content, similar prompts, and "You May Also Like" recommendations. Supabase projects use SQL RPC helpers; unconfigured projects fall back to demo search.
 
 ## Folder Structure
 
@@ -47,6 +49,7 @@ ai-prompt-gallery/
 |   |   |-- layout.css
 |   |   |-- main.css
 |   |   |-- post.css
+|   |   |-- search.css
 |   |   |-- tokens.css
 |   |   `-- utilities.css
 |   |-- icons/
@@ -59,6 +62,7 @@ ai-prompt-gallery/
 |       |-- demo-data.js
 |       |-- home.js
 |       |-- post.js
+|       |-- search.js
 |       |-- supabase-client.js
 |       `-- theme.js
 |-- database/
@@ -72,7 +76,8 @@ ai-prompt-gallery/
 |   |-- phase-04-post-details-page.md
 |   |-- phase-05-supabase-setup.md
 |   |-- phase-06-authentication.md
-|   `-- phase-07-likes-ratings-comments-saves.md
+|   |-- phase-07-likes-ratings-comments-saves.md
+|   `-- phase-08-search-recommendations.md
 |-- tools/
 |   `-- local-server.js
 |-- .editorconfig
@@ -82,6 +87,7 @@ ai-prompt-gallery/
 |-- index.html
 |-- post.html
 |-- README.md
+|-- search.html
 `-- setup-check.html
 ```
 
@@ -122,6 +128,12 @@ Use a real Supabase post UUID to test Phase 7 interactions:
 http://localhost:5500/post.html?id=YOUR_SUPABASE_POST_UUID
 ```
 
+Use the Phase 8 search page:
+
+```text
+http://localhost:5500/search.html?q=portrait
+```
+
 Open `setup-check.html` in your browser if you want to confirm the Phase 1 setup page still works.
 
 You can also open this folder in VS Code and run `git status` to check your local changes.
@@ -135,3 +147,4 @@ You can also open this folder in VS Code and run `git status` to check your loca
 - `docs/phase-05-supabase-setup.md`
 - `docs/phase-06-authentication.md`
 - `docs/phase-07-likes-ratings-comments-saves.md`
+- `docs/phase-08-search-recommendations.md`

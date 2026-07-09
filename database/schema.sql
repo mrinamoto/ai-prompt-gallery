@@ -537,6 +537,309 @@ create index if not exists idx_collections_user on public.collections (user_id, 
 create index if not exists idx_collection_posts_post on public.collection_posts (post_id);
 create index if not exists idx_views_post_viewed on public.views (post_id, viewed_at desc);
 
+-- Search and recommendation helpers for Phase 8.
+create or replace function public.search_posts(
+  p_search_text text default '',
+  p_category_slug text default null,
+  p_ai_tool text default null,
+  p_sort_by text default 'relevance',
+  p_limit integer default 40
+)
+returns table (
+  id uuid,
+  title text,
+  slug text,
+  description text,
+  prompt text,
+  negative_prompt text,
+  image_url text,
+  ai_tool text,
+  ai_model text,
+  aspect_ratio text,
+  views_count integer,
+  likes_count integer,
+  saves_count integer,
+  rating_count integer,
+  average_rating numeric,
+  comments_count integer,
+  published_at timestamptz,
+  created_at timestamptz,
+  category_name text,
+  category_slug text,
+  tags text[],
+  rank real
+)
+language sql
+stable
+set search_path = public
+as $$
+  with params as (
+    select
+      nullif(trim(coalesce(p_search_text, '')), '') as query_text,
+      case
+        when nullif(trim(coalesce(p_search_text, '')), '') is null then null
+        else websearch_to_tsquery('english', trim(p_search_text))
+      end as query,
+      nullif(trim(coalesce(p_category_slug, '')), '') as category_filter,
+      nullif(trim(coalesce(p_ai_tool, '')), '') as tool_filter,
+      coalesce(nullif(trim(coalesce(p_sort_by, '')), ''), 'relevance') as sort_filter,
+      greatest(1, least(coalesce(p_limit, 40), 80)) as safe_limit
+  ),
+  tag_list as (
+    select
+      post_tags.post_id,
+      array_agg(tags.name order by tags.name) as tags,
+      string_agg(tags.name, ' ' order by tags.name) as tag_text
+    from public.post_tags
+    join public.tags on tags.id = post_tags.tag_id
+    group by post_tags.post_id
+  )
+  select
+    posts.id,
+    posts.title,
+    posts.slug,
+    posts.description,
+    posts.prompt,
+    posts.negative_prompt,
+    posts.image_url,
+    posts.ai_tool,
+    posts.ai_model,
+    posts.aspect_ratio,
+    posts.views_count,
+    posts.likes_count,
+    posts.saves_count,
+    posts.rating_count,
+    posts.average_rating,
+    posts.comments_count,
+    posts.published_at,
+    posts.created_at,
+    categories.name as category_name,
+    categories.slug as category_slug,
+    coalesce(tag_list.tags, array[]::text[]) as tags,
+    (
+      case when params.query is null then 0 else ts_rank(posts.search_vector, params.query) * 4 end
+      + case when params.query_text is not null and posts.title ilike '%' || params.query_text || '%' then 2 else 0 end
+      + case when params.query_text is not null and posts.description ilike '%' || params.query_text || '%' then 1.5 else 0 end
+      + case when params.query_text is not null and posts.prompt ilike '%' || params.query_text || '%' then 1 else 0 end
+      + case when params.query_text is not null and categories.name ilike '%' || params.query_text || '%' then 1.5 else 0 end
+      + case when params.query_text is not null and coalesce(tag_list.tag_text, '') ilike '%' || params.query_text || '%' then 1.5 else 0 end
+      + (posts.average_rating::real * 0.35)
+      + (posts.likes_count::real * 0.001)
+      + (posts.views_count::real * 0.0002)
+      + (posts.saves_count::real * 0.0015)
+    )::real as rank
+  from public.posts
+  join public.categories on categories.id = posts.category_id
+  left join tag_list on tag_list.post_id = posts.id
+  cross join params
+  where posts.is_published = true
+    and (params.category_filter is null or categories.slug = params.category_filter)
+    and (params.tool_filter is null or lower(posts.ai_tool) = lower(params.tool_filter))
+    and (
+      params.query_text is null
+      or (params.query is not null and posts.search_vector @@ params.query)
+      or posts.title ilike '%' || params.query_text || '%'
+      or posts.description ilike '%' || params.query_text || '%'
+      or posts.prompt ilike '%' || params.query_text || '%'
+      or categories.name ilike '%' || params.query_text || '%'
+      or coalesce(tag_list.tag_text, '') ilike '%' || params.query_text || '%'
+    )
+  order by
+    case when params.sort_filter = 'newest' then posts.published_at end desc nulls last,
+    case when params.sort_filter = 'popular' then (posts.likes_count + posts.views_count) end desc,
+    case when params.sort_filter = 'rating' then posts.average_rating end desc,
+    case when params.sort_filter = 'trending' then (posts.views_count + posts.likes_count * 3 + posts.saves_count * 2 + posts.average_rating * 100) end desc,
+    rank desc,
+    posts.published_at desc nulls last,
+    posts.created_at desc
+  limit (select safe_limit from params);
+$$;
+
+create or replace function public.get_recommended_posts(
+  p_post_id uuid default null,
+  p_category_slug text default null,
+  p_tag_names text[] default null,
+  p_limit integer default 8
+)
+returns table (
+  id uuid,
+  title text,
+  slug text,
+  description text,
+  prompt text,
+  negative_prompt text,
+  image_url text,
+  ai_tool text,
+  ai_model text,
+  aspect_ratio text,
+  views_count integer,
+  likes_count integer,
+  saves_count integer,
+  rating_count integer,
+  average_rating numeric,
+  comments_count integer,
+  published_at timestamptz,
+  created_at timestamptz,
+  category_name text,
+  category_slug text,
+  tags text[],
+  recommendation_score real
+)
+language sql
+stable
+set search_path = public
+as $$
+  with target_context as (
+    select
+      categories.slug as target_category_slug,
+      coalesce(array_agg(tags.name order by tags.name) filter (where tags.id is not null), array[]::text[]) as target_tags
+    from public.posts
+    join public.categories on categories.id = posts.category_id
+    left join public.post_tags on post_tags.post_id = posts.id
+    left join public.tags on tags.id = post_tags.tag_id
+    where posts.id = p_post_id
+    group by categories.slug
+  ),
+  params as (
+    select
+      coalesce(nullif(trim(coalesce(p_category_slug, '')), ''), (select target_category_slug from target_context)) as category_filter,
+      case
+        when cardinality(coalesce(p_tag_names, array[]::text[])) > 0 then p_tag_names
+        else coalesce((select target_tags from target_context), array[]::text[])
+      end as tag_filter,
+      greatest(1, least(coalesce(p_limit, 8), 24)) as safe_limit
+  ),
+  tag_list as (
+    select
+      post_tags.post_id,
+      array_agg(tags.name order by tags.name) as tags,
+      string_agg(tags.name, ' ' order by tags.name) as tag_text
+    from public.post_tags
+    join public.tags on tags.id = post_tags.tag_id
+    group by post_tags.post_id
+  ),
+  scored_posts as (
+    select
+      posts.id,
+      posts.title,
+      posts.slug,
+      posts.description,
+      posts.prompt,
+      posts.negative_prompt,
+      posts.image_url,
+      posts.ai_tool,
+      posts.ai_model,
+      posts.aspect_ratio,
+      posts.views_count,
+      posts.likes_count,
+      posts.saves_count,
+      posts.rating_count,
+      posts.average_rating,
+      posts.comments_count,
+      posts.published_at,
+      posts.created_at,
+      categories.name as category_name,
+      categories.slug as category_slug,
+      coalesce(tag_list.tags, array[]::text[]) as tags,
+      (
+        case when params.category_filter is not null and categories.slug = params.category_filter then 6 else 0 end
+        + (
+          select count(*)::real * 3
+          from unnest(coalesce(tag_list.tags, array[]::text[])) as post_tag(name)
+          join unnest(coalesce(params.tag_filter, array[]::text[])) as wanted_tag(name)
+            on lower(post_tag.name) = lower(wanted_tag.name)
+        )
+        + (posts.average_rating::real * 1.4)
+        + (posts.likes_count::real * 0.003)
+        + (posts.views_count::real * 0.0005)
+        + (posts.saves_count::real * 0.003)
+      )::real as recommendation_score
+    from public.posts
+    join public.categories on categories.id = posts.category_id
+    left join tag_list on tag_list.post_id = posts.id
+    cross join params
+    where posts.is_published = true
+      and (p_post_id is null or posts.id <> p_post_id)
+  )
+  select *
+  from scored_posts
+  order by recommendation_score desc, published_at desc nulls last, created_at desc
+  limit (select safe_limit from params);
+$$;
+
+create or replace function public.get_related_searches(
+  p_search_text text default '',
+  p_category_slug text default null,
+  p_limit integer default 10
+)
+returns table (
+  label text,
+  kind text,
+  query text,
+  category_slug text
+)
+language sql
+stable
+set search_path = public
+as $$
+  with params as (
+    select
+      nullif(trim(coalesce(p_search_text, '')), '') as query_text,
+      nullif(trim(coalesce(p_category_slug, '')), '') as category_filter,
+      greatest(1, least(coalesce(p_limit, 10), 20)) as safe_limit
+  ),
+  related as (
+    select
+      categories.name as label,
+      'category'::text as kind,
+      categories.name as query,
+      categories.slug as category_slug,
+      (count(posts.id) + 5)::integer as score
+    from public.categories
+    cross join params
+    left join public.posts on posts.category_id = categories.id and posts.is_published = true
+    where categories.is_active = true
+      and (params.category_filter is null or categories.slug <> params.category_filter)
+      and (
+        params.query_text is null
+        or categories.name ilike '%' || params.query_text || '%'
+        or exists (
+          select 1
+          from public.posts category_posts
+          where category_posts.category_id = categories.id
+            and category_posts.is_published = true
+            and (
+              category_posts.title ilike '%' || params.query_text || '%'
+              or category_posts.description ilike '%' || params.query_text || '%'
+              or category_posts.prompt ilike '%' || params.query_text || '%'
+            )
+        )
+      )
+    group by categories.name, categories.slug
+
+    union all
+
+    select
+      tags.name as label,
+      'tag'::text as kind,
+      tags.name as query,
+      null::text as category_slug,
+      count(posts.id)::integer as score
+    from public.tags
+    cross join params
+    join public.post_tags on post_tags.tag_id = tags.id
+    join public.posts on posts.id = post_tags.post_id and posts.is_published = true
+    join public.categories on categories.id = posts.category_id
+    where params.category_filter is null or categories.slug = params.category_filter
+    group by tags.name, params.query_text
+    having params.query_text is null or tags.name ilike '%' || params.query_text || '%' or count(posts.id) > 0
+  )
+  select label, kind, query, category_slug
+  from related
+  order by score desc, label asc
+  limit (select safe_limit from params);
+$$;
+
 -- Seed starter categories and tags.
 insert into public.categories (name, slug, description, color, sort_order)
 values
@@ -615,6 +918,9 @@ grant select on public.categories, public.tags, public.posts, public.post_tags, 
 grant insert on public.views to anon;
 grant select, insert, update, delete on all tables in schema public to authenticated;
 grant execute on function public.is_admin() to anon, authenticated;
+grant execute on function public.search_posts(text, text, text, text, integer) to anon, authenticated;
+grant execute on function public.get_recommended_posts(uuid, text, text[], integer) to anon, authenticated;
+grant execute on function public.get_related_searches(text, text, integer) to anon, authenticated;
 
 -- Profiles policies.
 drop policy if exists "Authenticated users can view profiles" on public.profiles;

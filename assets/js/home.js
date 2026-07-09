@@ -238,6 +238,8 @@
   function bindEvents() {
     elements.searchForm.addEventListener("submit", function (event) {
       event.preventDefault();
+      const query = elements.searchInput.value.trim();
+      window.location.href = query ? `./search.html?q=${encodeURIComponent(query)}` : "./search.html";
     });
 
     elements.searchInput.addEventListener("input", function (event) {
@@ -279,7 +281,6 @@
     document.addEventListener("click", function (event) {
       const suggestion = event.target.closest("[data-suggestion]");
       const saveButton = event.target.closest("[data-save-post]");
-      const focusSearch = event.target.closest("[data-focus-search]");
 
       if (suggestion) {
         state.query = suggestion.dataset.suggestion;
@@ -290,10 +291,6 @@
 
       if (saveButton) {
         showToast("Saving posts arrives after authentication.");
-      }
-
-      if (focusSearch) {
-        elements.searchInput.focus();
       }
     });
   }
