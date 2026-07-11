@@ -1,0 +1,234 @@
+/* Profile, saved posts, and collection styles for Phase 9. */
+
+.account-sections,
+.profile-page,
+.collection-page {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.profile-hero,
+.collection-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-5);
+  align-items: end;
+}
+
+.profile-identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.profile-identity__copy {
+  min-width: 0;
+}
+
+.profile-identity h1,
+.collection-hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1;
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.profile-stat {
+  min-width: 110px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  padding: var(--space-4);
+}
+
+.profile-stat strong {
+  display: block;
+  color: var(--color-text);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.profile-stat span {
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.library-grid,
+.collection-grid,
+.collection-post-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: var(--space-4);
+}
+
+.library-card,
+.collection-card {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xs);
+}
+
+.collection-card__preview {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 2px;
+  min-height: 160px;
+  background: var(--color-surface-soft);
+}
+
+.collection-card__preview img {
+  width: 100%;
+  height: 100%;
+  min-height: 160px;
+  object-fit: cover;
+}
+
+.collection-card__preview img:only-child {
+  grid-column: 1 / -1;
+}
+
+.collection-card__preview img:first-child:nth-last-child(2) {
+  grid-column: span 2;
+}
+
+.collection-card__empty {
+  display: grid;
+  min-height: 160px;
+  place-items: center;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.library-card__image {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--color-surface-soft);
+}
+
+.library-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.library-card__body,
+.collection-card__body {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.library-card h3,
+.collection-card h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.library-card p,
+.collection-card p {
+  margin: 0;
+  color: var(--color-text-soft);
+  font-size: 0.9rem;
+}
+
+.library-card__actions,
+.collection-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.collection-select {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding-inline: var(--space-3);
+}
+
+.visibility-pill {
+  display: inline-flex;
+  width: max-content;
+  min-height: 28px;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 900;
+  padding-inline: var(--space-3);
+}
+
+.visibility-pill--public {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.collection-post-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.collection-post-item {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: var(--space-3);
+}
+
+.collection-post-item img {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+}
+
+.collection-post-item h4 {
+  margin: 0;
+  font-size: 0.96rem;
+}
+
+.collection-post-item p {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.84rem;
+}
+
+@media (max-width: 900px) {
+  .profile-hero,
+  .collection-hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .profile-stats,
+  .collection-post-item {
+    grid-template-columns: 1fr;
+  }
+
+  .collection-post-item img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+}

@@ -534,6 +534,8 @@ create index if not exists idx_ratings_post on public.ratings (post_id);
 create index if not exists idx_comments_post_created on public.comments (post_id, created_at desc);
 create index if not exists idx_saved_posts_user on public.saved_posts (user_id, created_at desc);
 create index if not exists idx_collections_user on public.collections (user_id, updated_at desc);
+create index if not exists idx_collections_public_user on public.collections (user_id, is_private, updated_at desc);
+create index if not exists idx_collection_posts_collection on public.collection_posts (collection_id, added_at desc);
 create index if not exists idx_collection_posts_post on public.collection_posts (post_id);
 create index if not exists idx_views_post_viewed on public.views (post_id, viewed_at desc);
 
@@ -914,7 +916,7 @@ alter table public.views enable row level security;
 
 -- API grants. RLS policies below still decide which rows are allowed.
 grant usage on schema public to anon, authenticated;
-grant select on public.categories, public.tags, public.posts, public.post_tags, public.comments, public.collections, public.collection_posts to anon;
+grant select on public.profiles, public.categories, public.tags, public.posts, public.post_tags, public.comments, public.collections, public.collection_posts to anon;
 grant insert on public.views to anon;
 grant select, insert, update, delete on all tables in schema public to authenticated;
 grant execute on function public.is_admin() to anon, authenticated;
@@ -924,9 +926,10 @@ grant execute on function public.get_related_searches(text, text, integer) to an
 
 -- Profiles policies.
 drop policy if exists "Authenticated users can view profiles" on public.profiles;
-create policy "Authenticated users can view profiles"
+drop policy if exists "Public can view profiles" on public.profiles;
+create policy "Public can view profiles"
 on public.profiles for select
-to authenticated
+to anon, authenticated
 using (true);
 
 drop policy if exists "Users can create own profile if missing" on public.profiles;
@@ -1202,6 +1205,12 @@ using (
         or collections.user_id = (select auth.uid())
         or public.is_admin()
       )
+  )
+  and exists (
+    select 1
+    from public.posts
+    where posts.id = collection_posts.post_id
+      and (posts.is_published = true or public.is_admin())
   )
 );
 

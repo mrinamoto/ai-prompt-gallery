@@ -15,7 +15,7 @@ No React, Next.js, npm build step, or paid tools are required.
 
 ## Current Phase
 
-Phase 8 is complete: Search and recommendations.
+Phase 9 is complete: User profiles and collections.
 
 Phase 1 created the local project folder, Git-ready housekeeping files, VS Code helper settings, and a small browser test page.
 
@@ -33,6 +33,8 @@ Phase 7 connected post detail interactions to Supabase for real database posts: 
 
 Phase 8 added a dedicated search page, search suggestions, filters, related searches, trending content, similar prompts, and "You May Also Like" recommendations. Supabase projects use SQL RPC helpers; unconfigured projects fall back to demo search.
 
+Phase 9 added editable profiles, saved posts, liked posts, custom collections, public/private collection settings, post add/remove tools, public profile pages, and collection detail pages.
+
 ## Folder Structure
 
 ```text
@@ -49,6 +51,7 @@ ai-prompt-gallery/
 |   |   |-- layout.css
 |   |   |-- main.css
 |   |   |-- post.css
+|   |   |-- profiles.css
 |   |   |-- search.css
 |   |   |-- tokens.css
 |   |   `-- utilities.css
@@ -59,9 +62,11 @@ ai-prompt-gallery/
 |       |-- app.js
 |       |-- auth-page.js
 |       |-- auth-state.js
+|       |-- collection.js
 |       |-- demo-data.js
 |       |-- home.js
 |       |-- post.js
+|       |-- profile.js
 |       |-- search.js
 |       |-- supabase-client.js
 |       `-- theme.js
@@ -77,15 +82,18 @@ ai-prompt-gallery/
 |   |-- phase-05-supabase-setup.md
 |   |-- phase-06-authentication.md
 |   |-- phase-07-likes-ratings-comments-saves.md
-|   `-- phase-08-search-recommendations.md
+|   |-- phase-08-search-recommendations.md
+|   `-- phase-09-user-profiles-collections.md
 |-- tools/
 |   `-- local-server.js
 |-- .editorconfig
 |-- .gitignore
 |-- account.html
 |-- auth.html
+|-- collection.html
 |-- index.html
 |-- post.html
+|-- profile.html
 |-- README.md
 |-- search.html
 `-- setup-check.html
@@ -134,6 +142,14 @@ Use the Phase 8 search page:
 http://localhost:5500/search.html?q=portrait
 ```
 
+Use the Phase 9 account library and public pages:
+
+```text
+http://localhost:5500/account.html
+http://localhost:5500/profile.html?username=YOUR_USERNAME
+http://localhost:5500/collection.html?id=YOUR_COLLECTION_UUID
+```
+
 Open `setup-check.html` in your browser if you want to confirm the Phase 1 setup page still works.
 
 You can also open this folder in VS Code and run `git status` to check your local changes.
@@ -148,3 +164,4 @@ You can also open this folder in VS Code and run `git status` to check your loca
 - `docs/phase-06-authentication.md`
 - `docs/phase-07-likes-ratings-comments-saves.md`
 - `docs/phase-08-search-recommendations.md`
+- `docs/phase-09-user-profiles-collections.md`

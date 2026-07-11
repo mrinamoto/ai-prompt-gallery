@@ -61,7 +61,7 @@
     <main class="account-page container--wide">
       <div class="section-header">
         <div class="section-header__copy">
-          <p class="eyebrow">Protected page</p>
+          <p class="eyebrow">Profile and library</p>
           <h1>Your account</h1>
         </div>
       </div>
@@ -80,48 +80,112 @@
           <div class="account-meta">
             <span>Role: <strong data-account-role>user</strong></span>
             <span>Auth provider: Supabase</span>
+            <a href="./profile.html" data-public-profile-link>View public profile</a>
           </div>
           <button class="button button--ghost" type="button" data-logout>Logout</button>
         </aside>
 
-        <section class="card">
-          <div class="section-header">
-            <div class="section-header__copy">
-              <p class="eyebrow">Profile</p>
-              <h2>Edit public details</h2>
+        <div class="account-sections">
+          <section class="card">
+            <div class="section-header">
+              <div class="section-header__copy">
+                <p class="eyebrow">Profile</p>
+                <h2>Edit public details</h2>
+              </div>
             </div>
-          </div>
 
-          <form class="form-grid" data-profile-form>
-            <label class="field">
-              <span>Username</span>
-              <input class="input" type="text" name="username" minlength="3" maxlength="30" required />
-            </label>
-            <label class="field">
-              <span>Display name</span>
-              <input class="input" type="text" name="display_name" maxlength="80" required />
-            </label>
-            <label class="field form-grid__full">
-              <span>Bio</span>
-              <textarea class="textarea" name="bio" maxlength="300"></textarea>
-            </label>
-            <label class="field form-grid__full">
-              <span>Website URL</span>
-              <input class="input" type="url" name="website_url" placeholder="https://example.com" />
-            </label>
-            <div class="form-grid__full cluster">
-              <button class="button button--primary" type="submit">Save profile</button>
-              <a class="button button--ghost" href="./index.html#feed">Browse prompts</a>
+            <form class="form-grid" data-profile-form>
+              <label class="field">
+                <span>Username</span>
+                <input class="input" type="text" name="username" minlength="3" maxlength="30" required />
+              </label>
+              <label class="field">
+                <span>Display name</span>
+                <input class="input" type="text" name="display_name" maxlength="80" required />
+              </label>
+              <label class="field form-grid__full">
+                <span>Bio</span>
+                <textarea class="textarea" name="bio" maxlength="500"></textarea>
+              </label>
+              <label class="field form-grid__full">
+                <span>Website URL</span>
+                <input class="input" type="url" name="website_url" placeholder="https://example.com" />
+              </label>
+              <div class="form-grid__full cluster">
+                <button class="button button--primary" type="submit">Save profile</button>
+                <a class="button button--ghost" href="./search.html">Find prompts</a>
+              </div>
+            </form>
+
+            <p class="status-message mt-4" data-account-status aria-live="polite"></p>
+          </section>
+
+          <section class="card stack">
+            <div class="section-header">
+              <div class="section-header__copy">
+                <p class="eyebrow">Collections</p>
+                <h2>Create a collection</h2>
+              </div>
             </div>
-          </form>
 
-          <p class="status-message mt-4" data-account-status aria-live="polite"></p>
-        </section>
+            <form class="form-grid" data-collection-form>
+              <label class="field">
+                <span>Name</span>
+                <input class="input" type="text" name="name" maxlength="80" required />
+              </label>
+              <label class="field">
+                <span>Visibility</span>
+                <select class="select" name="visibility">
+                  <option value="private">Private</option>
+                  <option value="public">Public</option>
+                </select>
+              </label>
+              <label class="field form-grid__full">
+                <span>Description</span>
+                <textarea class="textarea" name="description" maxlength="300"></textarea>
+              </label>
+              <div class="form-grid__full">
+                <button class="button button--primary" type="submit">Create collection</button>
+              </div>
+            </form>
+            <p class="status-message" data-collection-status aria-live="polite"></p>
+          </section>
+
+          <section class="card stack">
+            <div class="section-header">
+              <div class="section-header__copy">
+                <p class="eyebrow">Your collections</p>
+                <h2>Organize saved ideas</h2>
+              </div>
+            </div>
+            <div class="collection-grid" data-collections-list></div>
+          </section>
+
+          <section class="card stack">
+            <div class="section-header">
+              <div class="section-header__copy">
+                <p class="eyebrow">Saved posts</p>
+                <h2>Your saved prompts</h2>
+              </div>
+            </div>
+            <div class="library-grid" data-saved-posts-list></div>
+          </section>
+
+          <section class="card stack">
+            <div class="section-header">
+              <div class="section-header__copy">
+                <p class="eyebrow">Liked posts</p>
+                <h2>Prompts you liked</h2>
+              </div>
+            </div>
+            <div class="library-grid" data-liked-posts-list></div>
+          </section>
+        </div>
       </section>
     </main>
 
     <footer class="container--wide section--tight text-muted">
-      <small>&copy; <span data-current-year></span> AI Prompt Gallery. Phase 6 authentication foundation.</small>
+      <small>&copy; <span data-current-year></span> AI Prompt Gallery. Phase 9 profiles and collections.</small>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
