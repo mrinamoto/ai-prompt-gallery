@@ -257,6 +257,10 @@
     elements.bio.value = profile.bio || "";
     elements.website.value = profile.website_url || "";
     elements.publicProfileLink.href = getPublicProfileUrl(profile);
+
+    if (elements.adminDashboardLink) {
+      elements.adminDashboardLink.hidden = profile.role !== "admin";
+    }
   }
 
   function collectionOptions() {
@@ -610,6 +614,7 @@
     elements.email = document.querySelector("[data-account-email]");
     elements.role = document.querySelector("[data-account-role]");
     elements.publicProfileLink = document.querySelector("[data-public-profile-link]");
+    elements.adminDashboardLink = document.querySelector("[data-admin-dashboard-link]");
     elements.form = document.querySelector("[data-profile-form]");
     elements.collectionForm = document.querySelector("[data-collection-form]");
     elements.collectionsList = document.querySelector("[data-collections-list]");

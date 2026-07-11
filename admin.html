@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Admin dashboard for AI Prompt Gallery content, uploads, categories, tags, comments, users, and analytics."
+    />
+    <title>Admin Dashboard - AI Prompt Gallery</title>
+    <script src="./assets/js/theme.js"></script>
+    <link rel="stylesheet" href="./assets/css/main.css" />
+  </head>
+  <body data-requires-auth>
+    <header class="app-header">
+      <div class="container app-header__inner">
+        <a class="brand" href="./index.html" aria-label="AI Prompt Gallery home">
+          <span class="brand__mark">PG</span>
+          <span class="brand__text">Prompt Gallery</span>
+        </a>
+
+        <nav class="site-nav" aria-label="Main navigation">
+          <a class="site-nav__link" href="./index.html#feed">Browse</a>
+          <a class="site-nav__link" href="./search.html">Search</a>
+          <a class="site-nav__link" href="./account.html">Account</a>
+          <a class="site-nav__link is-active" href="./admin.html">Admin</a>
+        </nav>
+
+        <div class="header-actions">
+          <button class="icon-button" type="button" data-theme-toggle aria-label="Switch color theme">
+            <svg class="icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 4V2m0 20v-2m8-8h2M2 12h2m13.66-5.66 1.41-1.41M4.93 19.07l1.41-1.41m0-11.32L4.93 4.93m14.14 14.14-1.41-1.41M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+              />
+            </svg>
+            <svg class="icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M20.5 15.5A8.5 8.5 0 0 1 8.5 3.5 7 7 0 1 0 20.5 15.5Z"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+              />
+            </svg>
+          </button>
+          <a class="button button--primary button--sm" href="./account.html" data-auth-link>
+            <span data-auth-label>Account</span>
+          </a>
+          <button class="button button--ghost button--sm" type="button" data-logout hidden>Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="admin-page container--wide">
+      <div class="protected-loading card" data-admin-loading>
+        <p class="mb-0 text-muted">Checking admin access...</p>
+      </div>
+
+      <section class="not-found-panel card stack" data-admin-denied hidden>
+        <p class="eyebrow">Admin access</p>
+        <h1>Admin dashboard is locked.</h1>
+        <p class="lead">Sign in with an admin account before managing gallery content.</p>
+        <div class="cluster">
+          <a class="button button--primary" href="./auth.html">Sign in</a>
+          <a class="button button--ghost" href="./account.html">Open account</a>
+        </div>
+      </section>
+
+      <section class="admin-shell" data-admin-content hidden>
+        <div class="admin-hero">
+          <div>
+            <p class="eyebrow">Admin dashboard</p>
+            <h1>Content studio</h1>
+            <p class="lead mb-0">A focused workspace for keeping the prompt gallery fresh, organized, and trustworthy.</p>
+          </div>
+          <div class="cluster">
+            <button class="button button--soft" type="button" data-admin-refresh>Refresh</button>
+            <a class="button button--primary" href="./search.html">View site</a>
+          </div>
+        </div>
+
+        <div class="admin-stats" data-admin-stats></div>
+
+        <nav class="admin-tabs" aria-label="Admin sections">
+          <button class="admin-tab is-active" type="button" data-admin-tab-button="posts">Posts</button>
+          <button class="admin-tab" type="button" data-admin-tab-button="categories">Categories</button>
+          <button class="admin-tab" type="button" data-admin-tab-button="tags">Tags</button>
+          <button class="admin-tab" type="button" data-admin-tab-button="comments">Comments</button>
+          <button class="admin-tab" type="button" data-admin-tab-button="users">Users</button>
+          <button class="admin-tab" type="button" data-admin-tab-button="analytics">Analytics</button>
+        </nav>
+
+        <p class="status-message" data-admin-status aria-live="polite"></p>
+
+        <section class="admin-panel is-active" data-admin-panel="posts">
+          <div class="admin-workspace">
+            <section class="card stack">
+              <div class="section-header">
+                <div class="section-header__copy">
+                  <p class="eyebrow">Posts</p>
+                  <h2 data-post-form-title>Create post</h2>
+                </div>
+                <button class="button button--ghost button--sm" type="button" data-reset-post-form>Clear</button>
+              </div>
+
+              <form class="admin-form" data-post-form>
+                <input type="hidden" name="id" />
+                <input type="hidden" name="image_url" />
+                <input type="hidden" name="image_path" />
+
+                <label class="field">
+                  <span>Title</span>
+                  <input class="input" type="text" name="title" maxlength="140" required />
+                </label>
+                <label class="field">
+                  <span>Slug</span>
+                  <input class="input" type="text" name="slug" maxlength="160" required />
+                </label>
+                <label class="field form-grid__full">
+                  <span>Description</span>
+                  <textarea class="textarea" name="description" maxlength="500" required></textarea>
+                </label>
+                <label class="field form-grid__full">
+                  <span>Full prompt</span>
+                  <textarea class="textarea textarea--tall" name="prompt" maxlength="12000" required></textarea>
+                </label>
+                <label class="field form-grid__full">
+                  <span>Negative prompt</span>
+                  <textarea class="textarea" name="negative_prompt" maxlength="6000"></textarea>
+                </label>
+                <label class="field">
+                  <span>Category</span>
+                  <select class="select" name="category_id" required data-category-options></select>
+                </label>
+                <label class="field">
+                  <span>Aspect ratio</span>
+                  <input class="input" type="text" name="aspect_ratio" placeholder="4 / 5" maxlength="20" required />
+                </label>
+                <label class="field">
+                  <span>AI tool</span>
+                  <input class="input" type="text" name="ai_tool" placeholder="Midjourney" maxlength="80" required />
+                </label>
+                <label class="field">
+                  <span>AI model</span>
+                  <input class="input" type="text" name="ai_model" placeholder="v6.1" maxlength="80" required />
+                </label>
+                <label class="field form-grid__full">
+                  <span>Tags</span>
+                  <input class="input" type="text" name="tags" placeholder="cinematic, portrait, studio" />
+                </label>
+                <label class="field form-grid__full">
+                  <span>Image upload</span>
+                  <input class="input" type="file" name="image_file" accept="image/png,image/jpeg,image/webp,image/gif" />
+                </label>
+                <div class="admin-image-preview form-grid__full" data-post-image-preview hidden></div>
+                <label class="admin-check form-grid__full">
+                  <input type="checkbox" name="is_published" />
+                  <span>Publish post</span>
+                </label>
+                <div class="form-grid__full cluster">
+                  <button class="button button--primary" type="submit" data-post-submit>Save post</button>
+                  <button class="button button--ghost" type="button" data-reset-post-form>Cancel</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="card stack">
+              <div class="section-header">
+                <div class="section-header__copy">
+                  <p class="eyebrow">Library</p>
+                  <h2>Manage posts</h2>
+                </div>
+              </div>
+              <div class="admin-toolbar">
+                <input class="input" type="search" placeholder="Search posts" data-post-filter />
+                <select class="select" data-post-status-filter>
+                  <option value="all">All statuses</option>
+                  <option value="published">Published</option>
+                  <option value="draft">Drafts</option>
+                </select>
+              </div>
+              <div class="admin-list" data-posts-list></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-panel" data-admin-panel="categories">
+          <div class="admin-workspace admin-workspace--narrow">
+            <section class="card stack">
+              <div class="section-header">
+                <div class="section-header__copy">
+                  <p class="eyebrow">Categories</p>
+                  <h2 data-category-form-title>Create category</h2>
+                </div>
+                <button class="button button--ghost button--sm" type="button" data-reset-category-form>Clear</button>
+              </div>
+              <form class="admin-form" data-category-form>
+                <input type="hidden" name="id" />
+                <label class="field">
+                  <span>Name</span>
+                  <input class="input" type="text" name="name" maxlength="60" required />
+                </label>
+                <label class="field">
+                  <span>Slug</span>
+                  <input class="input" type="text" name="slug" maxlength="80" required />
+                </label>
+                <label class="field form-grid__full">
+                  <span>Description</span>
+                  <textarea class="textarea" name="description" maxlength="300"></textarea>
+                </label>
+                <label class="field">
+                  <span>Color</span>
+                  <input class="input" type="color" name="color" value="#ef4056" />
+                </label>
+                <label class="field">
+                  <span>Sort order</span>
+                  <input class="input" type="number" name="sort_order" value="0" />
+                </label>
+                <label class="admin-check form-grid__full">
+                  <input type="checkbox" name="is_active" checked />
+                  <span>Active</span>
+                </label>
+                <div class="form-grid__full">
+                  <button class="button button--primary" type="submit">Save category</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="card stack">
+              <div class="section-header">
+                <div class="section-header__copy">
+                  <p class="eyebrow">Categories</p>
+                  <h2>Current categories</h2>
+                </div>
+              </div>
+              <div class="admin-list" data-categories-list></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-panel" data-admin-panel="tags">
+          <div class="admin-workspace admin-workspace--narrow">
+            <section class="card stack">
+              <div class="section-header">
+                <div class="section-header__copy">
+                  <p class="eyebrow">Tags</p>
+                  <h2 data-tag-form-title>Create tag</h2>
+                </div>
+                <button class="button button--ghost button--sm" type="button" data-reset-tag-form>Clear</button>
+              </div>
+              <form class="admin-form" data-tag-form>
+                <input type="hidden" name="id" />
+                <label class="field">
+                  <span>Name</span>
+                  <input class="input" type="text" name="name" maxlength="40" required />
+                </label>
+                <label class="field">
+                  <span>Slug</span>
+                  <input class="input" type="text" name="slug" maxlength="60" required />
+                </label>
+                <div class="form-grid__full">
+                  <button class="button button--primary" type="submit">Save tag</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="card stack">
+              <div class="section-header">
+                <div class="section-header__copy">
+                  <p class="eyebrow">Tags</p>
+                  <h2>Current tags</h2>
+                </div>
+              </div>
+              <div class="admin-list admin-list--compact" data-tags-list></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-panel" data-admin-panel="comments">
+          <section class="card stack">
+            <div class="section-header">
+              <div class="section-header__copy">
+                <p class="eyebrow">Comments</p>
+                <h2>Moderation queue</h2>
+              </div>
+            </div>
+            <div class="admin-list" data-comments-list></div>
+          </section>
+        </section>
+
+        <section class="admin-panel" data-admin-panel="users">
+          <section class="card stack">
+            <div class="section-header">
+              <div class="section-header__copy">
+                <p class="eyebrow">Users</p>
+                <h2>Profile roles</h2>
+              </div>
+            </div>
+            <div class="admin-list" data-users-list></div>
+          </section>
+        </section>
+
+        <section class="admin-panel" data-admin-panel="analytics">
+          <div class="admin-workspace admin-workspace--narrow">
+            <section class="card stack">
+              <div class="section-header">
+                <div class="section-header__copy">
+                  <p class="eyebrow">Analytics</p>
+                  <h2>Top posts</h2>
+                </div>
+              </div>
+              <div class="admin-list" data-top-posts-list></div>
+            </section>
+            <section class="card stack">
+              <div class="section-header">
+                <div class="section-header__copy">
+                  <p class="eyebrow">Activity</p>
+                  <h2>Recent comments</h2>
+                </div>
+              </div>
+              <div class="admin-list" data-recent-comments-list></div>
+            </section>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="container--wide section--tight text-muted">
+      <small>&copy; <span data-current-year></span> AI Prompt Gallery. Phase 10 admin dashboard.</small>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./assets/js/supabase-client.js"></script>
+    <script src="./assets/js/auth-state.js"></script>
+    <script src="./assets/js/app.js"></script>
+    <script src="./assets/js/admin.js"></script>
+  </body>
+</html>

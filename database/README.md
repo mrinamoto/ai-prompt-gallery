@@ -17,3 +17,5 @@ Phase 7 uses the existing `likes`, `ratings`, `comments`, `saved_posts`, and `vi
 Phase 8 adds search and recommendation SQL functions: `search_posts`, `get_recommended_posts`, and `get_related_searches`. If your database was created before Phase 8, run the latest `database/schema.sql` search helper block or see `docs/phase-08-search-recommendations.md`.
 
 Phase 9 expands profile and collection visibility for public profile pages and private owner libraries. It adds collection indexes, grants anon read access to public profile and collection rows, and tightens collection-post visibility so public users only see published posts in visible collections. If your database was created before Phase 9, run the SQL update in `docs/phase-09-user-profiles-collections.md`.
+
+Phase 10 uses the existing admin policies and `post-images` storage bucket. No service role key is needed in the frontend. To access the dashboard, create your auth user first, then run `make-admin.sql` with your email.

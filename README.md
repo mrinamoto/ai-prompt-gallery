@@ -15,7 +15,7 @@ No React, Next.js, npm build step, or paid tools are required.
 
 ## Current Phase
 
-Phase 9 is complete: User profiles and collections.
+Phase 10 is complete: Admin dashboard.
 
 Phase 1 created the local project folder, Git-ready housekeeping files, VS Code helper settings, and a small browser test page.
 
@@ -35,6 +35,8 @@ Phase 8 added a dedicated search page, search suggestions, filters, related sear
 
 Phase 9 added editable profiles, saved posts, liked posts, custom collections, public/private collection settings, post add/remove tools, public profile pages, and collection detail pages.
 
+Phase 10 added a secure admin dashboard for image uploads, post creation and editing, prompt management, categories, tags, users, comments, and basic analytics. Admins can add content without editing HTML.
+
 ## Folder Structure
 
 ```text
@@ -44,6 +46,7 @@ ai-prompt-gallery/
 |   `-- settings.json
 |-- assets/
 |   |-- css/
+|   |   |-- admin.css
 |   |   |-- base.css
 |   |   |-- auth.css
 |   |   |-- components.css
@@ -59,6 +62,7 @@ ai-prompt-gallery/
 |   |-- images/
 |   `-- js/
 |       |-- account.js
+|       |-- admin.js
 |       |-- app.js
 |       |-- auth-page.js
 |       |-- auth-state.js
@@ -83,12 +87,14 @@ ai-prompt-gallery/
 |   |-- phase-06-authentication.md
 |   |-- phase-07-likes-ratings-comments-saves.md
 |   |-- phase-08-search-recommendations.md
-|   `-- phase-09-user-profiles-collections.md
+|   |-- phase-09-user-profiles-collections.md
+|   `-- phase-10-admin-dashboard.md
 |-- tools/
 |   `-- local-server.js
 |-- .editorconfig
 |-- .gitignore
 |-- account.html
+|-- admin.html
 |-- auth.html
 |-- collection.html
 |-- index.html
@@ -150,6 +156,12 @@ http://localhost:5500/profile.html?username=YOUR_USERNAME
 http://localhost:5500/collection.html?id=YOUR_COLLECTION_UUID
 ```
 
+Use the Phase 10 admin dashboard after promoting your account with `database/make-admin.sql`:
+
+```text
+http://localhost:5500/admin.html
+```
+
 Open `setup-check.html` in your browser if you want to confirm the Phase 1 setup page still works.
 
 You can also open this folder in VS Code and run `git status` to check your local changes.
@@ -165,3 +177,4 @@ You can also open this folder in VS Code and run `git status` to check your loca
 - `docs/phase-07-likes-ratings-comments-saves.md`
 - `docs/phase-08-search-recommendations.md`
 - `docs/phase-09-user-profiles-collections.md`
+- `docs/phase-10-admin-dashboard.md`
