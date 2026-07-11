@@ -129,8 +129,11 @@ on public.collections (user_id, is_private, updated_at desc);
 create index if not exists idx_collection_posts_collection
 on public.collection_posts (collection_id, added_at desc);
 
+grant select (id, username, display_name, avatar_url, bio, website_url, created_at, updated_at)
+on public.profiles to anon, authenticated;
+
 grant select
-on public.profiles, public.categories, public.tags, public.posts, public.post_tags,
+on public.categories, public.tags, public.posts, public.post_tags,
    public.comments, public.collections, public.collection_posts
 to anon;
 

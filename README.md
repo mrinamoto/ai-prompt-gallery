@@ -15,7 +15,7 @@ No React, Next.js, npm build step, or paid tools are required.
 
 ## Current Phase
 
-Phase 10 is complete: Admin dashboard.
+Phase 11 is complete: Security and Supabase Row Level Security.
 
 Phase 1 created the local project folder, Git-ready housekeeping files, VS Code helper settings, and a small browser test page.
 
@@ -36,6 +36,8 @@ Phase 8 added a dedicated search page, search suggestions, filters, related sear
 Phase 9 added editable profiles, saved posts, liked posts, custom collections, public/private collection settings, post add/remove tools, public profile pages, and collection detail pages.
 
 Phase 10 added a secure admin dashboard for image uploads, post creation and editing, prompt management, categories, tags, users, comments, and basic analytics. Admins can add content without editing HTML.
+
+Phase 11 audited the database and frontend security surface, narrowed Supabase grants, added role-safe RPC helpers, hardened admin role changes, protected system-managed post fields, validated post uploads, and folder-scoped Storage policies.
 
 ## Folder Structure
 
@@ -88,7 +90,8 @@ ai-prompt-gallery/
 |   |-- phase-07-likes-ratings-comments-saves.md
 |   |-- phase-08-search-recommendations.md
 |   |-- phase-09-user-profiles-collections.md
-|   `-- phase-10-admin-dashboard.md
+|   |-- phase-10-admin-dashboard.md
+|   `-- phase-11-security-rls.md
 |-- tools/
 |   `-- local-server.js
 |-- .editorconfig
@@ -162,6 +165,12 @@ Use the Phase 10 admin dashboard after promoting your account with `database/mak
 http://localhost:5500/admin.html
 ```
 
+For Phase 11 security hardening, run the latest full `database/schema.sql` in Supabase SQL Editor, or follow the update notes in:
+
+```text
+docs/phase-11-security-rls.md
+```
+
 Open `setup-check.html` in your browser if you want to confirm the Phase 1 setup page still works.
 
 You can also open this folder in VS Code and run `git status` to check your local changes.
@@ -178,3 +187,4 @@ You can also open this folder in VS Code and run `git status` to check your loca
 - `docs/phase-08-search-recommendations.md`
 - `docs/phase-09-user-profiles-collections.md`
 - `docs/phase-10-admin-dashboard.md`
+- `docs/phase-11-security-rls.md`

@@ -140,39 +140,40 @@
     const client = getClient();
     const user = session.user;
 
-    const { data, error } = await client
-      .from("profiles")
-      .select("id, username, display_name, avatar_url, bio, website_url, role, created_at")
-      .eq("id", user.id)
-      .maybeSingle();
+    const { data, error } = await client.rpc("get_current_profile");
 
     if (error) {
       throw error;
     }
 
-    if (data) {
-      return data;
+    if (data?.[0]) {
+      return data[0];
     }
 
     const fallbackProfile = {
       id: user.id,
       username: makeUsername(user.email, user.id),
       display_name: user.user_metadata?.display_name || user.email?.split("@")[0] || "New user",
-      avatar_url: user.user_metadata?.avatar_url || null,
-      role: "user"
+      avatar_url: user.user_metadata?.avatar_url || null
     };
 
-    const { data: createdProfile, error: insertError } = await client
-      .from("profiles")
-      .insert(fallbackProfile)
-      .select("id, username, display_name, avatar_url, bio, website_url, role, created_at")
-      .single();
+    const { error: insertError } = await client.from("profiles").insert(fallbackProfile);
 
     if (insertError) {
       throw insertError;
     }
 
-    return createdProfile;
+    const { data: createdProfile, error: profileError } = await client.rpc("get_current_profile");
+
+    if (profileError) {
+      throw profileError;
+    }
+
+    if (!createdProfile?.[0]) {
+      throw new Error("Profile could not be loaded after creation.");
+    }
+
+    return createdProfile[0];
   }
 
   async function loadSavedPosts() {
@@ -399,12 +400,10 @@
 
     setFormLoading(elements.form, true);
 
-    const { data, error } = await getClient()
+    const { error } = await getClient()
       .from("profiles")
       .update(updates)
-      .eq("id", state.session.user.id)
-      .select("id, username, display_name, avatar_url, bio, website_url, role, created_at")
-      .single();
+      .eq("id", state.session.user.id);
 
     setFormLoading(elements.form, false);
 
@@ -413,8 +412,8 @@
       return;
     }
 
-    state.profile = data;
-    renderProfile(state.session, data);
+    state.profile = await loadProfile(state.session);
+    renderProfile(state.session, state.profile);
     showStatus(elements.status, "Profile updated.", "success");
   }
 

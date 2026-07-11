@@ -51,11 +51,116 @@ as $$
   );
 $$;
 
+create or replace function public.get_current_profile()
+returns table (
+  id uuid,
+  username text,
+  display_name text,
+  avatar_url text,
+  bio text,
+  website_url text,
+  role public.profile_role,
+  created_at timestamptz,
+  updated_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    profiles.id,
+    profiles.username,
+    profiles.display_name,
+    profiles.avatar_url,
+    profiles.bio,
+    profiles.website_url,
+    profiles.role,
+    profiles.created_at,
+    profiles.updated_at
+  from public.profiles
+  where profiles.id = auth.uid();
+$$;
+
+create or replace function public.admin_list_profiles()
+returns table (
+  id uuid,
+  username text,
+  display_name text,
+  role public.profile_role,
+  created_at timestamptz,
+  updated_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    profiles.id,
+    profiles.username,
+    profiles.display_name,
+    profiles.role,
+    profiles.created_at,
+    profiles.updated_at
+  from public.profiles
+  where public.is_admin()
+  order by profiles.created_at desc
+  limit 120;
+$$;
+
+create or replace function public.admin_set_profile_role(
+  p_user_id uuid,
+  p_role public.profile_role
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  existing_role public.profile_role;
+  admin_count integer;
+begin
+  if not public.is_admin() then
+    raise exception 'Only admins can change profile roles.';
+  end if;
+
+  select role into existing_role
+  from public.profiles
+  where id = p_user_id;
+
+  if existing_role is null then
+    raise exception 'Profile not found.';
+  end if;
+
+  if p_user_id = auth.uid() and p_role <> 'admin' then
+    raise exception 'Admins cannot demote their own account from the browser.';
+  end if;
+
+  if existing_role = 'admin' and p_role <> 'admin' then
+    select count(*)::integer into admin_count
+    from public.profiles
+    where role = 'admin';
+
+    if admin_count <= 1 then
+      raise exception 'At least one admin account is required.';
+    end if;
+  end if;
+
+  update public.profiles
+  set role = p_role
+  where id = p_user_id;
+end;
+$$;
+
 create or replace function public.prevent_profile_role_escalation()
 returns trigger
 language plpgsql
 set search_path = public
 as $$
+declare
+  admin_count integer;
 begin
   if
     new.role is distinct from old.role
@@ -63,6 +168,31 @@ begin
     and current_user not in ('postgres', 'service_role', 'supabase_admin')
   then
     raise exception 'Only admins can change profile roles.';
+  end if;
+
+  if
+    new.role is distinct from old.role
+    and old.id = auth.uid()
+    and old.role = 'admin'
+    and new.role <> 'admin'
+    and current_user not in ('postgres', 'service_role', 'supabase_admin')
+  then
+    raise exception 'Admins cannot demote their own account from the browser.';
+  end if;
+
+  if
+    new.role is distinct from old.role
+    and old.role = 'admin'
+    and new.role <> 'admin'
+    and current_user not in ('postgres', 'service_role', 'supabase_admin')
+  then
+    select count(*)::integer into admin_count
+    from public.profiles
+    where role = 'admin';
+
+    if admin_count <= 1 then
+      raise exception 'At least one admin account is required.';
+    end if;
   end if;
 
   return new;
@@ -186,12 +316,23 @@ returns trigger
 language plpgsql
 as $$
 begin
-  if new.is_published = true and new.published_at is null then
-    new.published_at = now();
-  end if;
-
   if new.is_published = false then
     new.published_at = null;
+    return new;
+  end if;
+
+  if tg_op = 'INSERT' and new.is_published = true then
+    new.published_at = now();
+    return new;
+  end if;
+
+  if tg_op = 'UPDATE' and new.is_published = true and old.is_published = false then
+    new.published_at = now();
+    return new;
+  end if;
+
+  if tg_op = 'UPDATE' and old.is_published = true then
+    new.published_at = old.published_at;
   end if;
 
   return new;
@@ -207,6 +348,70 @@ drop trigger if exists posts_set_updated_at on public.posts;
 create trigger posts_set_updated_at
 before update on public.posts
 for each row execute function public.set_updated_at();
+
+create or replace function public.validate_post_payload()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  new.title := btrim(new.title);
+  new.slug := btrim(new.slug);
+  new.description := btrim(new.description);
+  new.prompt := btrim(new.prompt);
+  new.negative_prompt := nullif(btrim(coalesce(new.negative_prompt, '')), '');
+  new.image_url := btrim(new.image_url);
+  new.ai_tool := btrim(new.ai_tool);
+  new.ai_model := btrim(new.ai_model);
+  new.aspect_ratio := btrim(new.aspect_ratio);
+
+  if new.image_url !~* '^https://.+' then
+    raise exception 'Post image URL must be an HTTPS URL.';
+  end if;
+
+  if new.image_path is not null and new.image_path !~ ('^posts/' || new.author_id::text || '/[A-Za-z0-9._-]+$') then
+    raise exception 'Post image path must stay inside the admin upload folder.';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists posts_validate_payload on public.posts;
+create trigger posts_validate_payload
+before insert or update on public.posts
+for each row execute function public.validate_post_payload();
+
+create or replace function public.prevent_post_system_field_change()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  if current_user in ('postgres', 'service_role', 'supabase_admin') then
+    return new;
+  end if;
+
+  if
+    new.author_id is distinct from old.author_id
+    or new.views_count is distinct from old.views_count
+    or new.likes_count is distinct from old.likes_count
+    or new.saves_count is distinct from old.saves_count
+    or new.rating_count is distinct from old.rating_count
+    or new.average_rating is distinct from old.average_rating
+    or new.comments_count is distinct from old.comments_count
+  then
+    raise exception 'System-managed post fields cannot be changed from the browser.';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists posts_prevent_system_field_change on public.posts;
+create trigger posts_prevent_system_field_change
+before update on public.posts
+for each row execute function public.prevent_post_system_field_change();
 
 create table if not exists public.post_tags (
   post_id uuid not null references public.posts(id) on delete cascade,
@@ -914,12 +1119,28 @@ alter table public.collections enable row level security;
 alter table public.collection_posts enable row level security;
 alter table public.views enable row level security;
 
--- API grants. RLS policies below still decide which rows are allowed.
+-- API grants. Keep browser privileges narrow; RLS policies below still decide which rows are allowed.
+revoke all on all tables in schema public from anon, authenticated;
+revoke execute on all functions in schema public from public, anon, authenticated;
 grant usage on schema public to anon, authenticated;
-grant select on public.profiles, public.categories, public.tags, public.posts, public.post_tags, public.comments, public.collections, public.collection_posts to anon;
+
+grant select (id, username, display_name, avatar_url, bio, website_url, created_at, updated_at)
+on public.profiles to anon, authenticated;
+grant insert (id, username, display_name, avatar_url, bio, website_url)
+on public.profiles to authenticated;
+grant update (username, display_name, avatar_url, bio, website_url)
+on public.profiles to authenticated;
+
+grant select on public.categories, public.tags, public.posts, public.post_tags, public.comments, public.collections, public.collection_posts to anon;
 grant insert on public.views to anon;
-grant select, insert, update, delete on all tables in schema public to authenticated;
+grant select, insert, update, delete on public.categories, public.tags, public.posts, public.post_tags to authenticated;
+grant select, insert, delete on public.likes, public.saved_posts, public.collection_posts to authenticated;
+grant select, insert, update, delete on public.ratings, public.comments, public.collections to authenticated;
+grant select, insert on public.views to authenticated;
 grant execute on function public.is_admin() to anon, authenticated;
+grant execute on function public.get_current_profile() to authenticated;
+grant execute on function public.admin_list_profiles() to authenticated;
+grant execute on function public.admin_set_profile_role(uuid, public.profile_role) to authenticated;
 grant execute on function public.search_posts(text, text, text, text, integer) to anon, authenticated;
 grant execute on function public.get_recommended_posts(uuid, text, text[], integer) to anon, authenticated;
 grant execute on function public.get_related_searches(text, text, integer) to anon, authenticated;
@@ -1277,17 +1498,37 @@ drop policy if exists "Admins can upload post images" on storage.objects;
 create policy "Admins can upload post images"
 on storage.objects for insert
 to authenticated
-with check (bucket_id = 'post-images' and public.is_admin());
+with check (
+  bucket_id = 'post-images'
+  and public.is_admin()
+  and (storage.foldername(name))[1] = 'posts'
+  and (storage.foldername(name))[2] = (select auth.uid())::text
+);
 
 drop policy if exists "Admins can update post images" on storage.objects;
 create policy "Admins can update post images"
 on storage.objects for update
 to authenticated
-using (bucket_id = 'post-images' and public.is_admin())
-with check (bucket_id = 'post-images' and public.is_admin());
+using (
+  bucket_id = 'post-images'
+  and public.is_admin()
+  and (storage.foldername(name))[1] = 'posts'
+  and (storage.foldername(name))[2] = (select auth.uid())::text
+)
+with check (
+  bucket_id = 'post-images'
+  and public.is_admin()
+  and (storage.foldername(name))[1] = 'posts'
+  and (storage.foldername(name))[2] = (select auth.uid())::text
+);
 
 drop policy if exists "Admins can delete post images" on storage.objects;
 create policy "Admins can delete post images"
 on storage.objects for delete
 to authenticated
-using (bucket_id = 'post-images' and public.is_admin());
+using (
+  bucket_id = 'post-images'
+  and public.is_admin()
+  and (storage.foldername(name))[1] = 'posts'
+  and (storage.foldername(name))[2] = (select auth.uid())::text
+);

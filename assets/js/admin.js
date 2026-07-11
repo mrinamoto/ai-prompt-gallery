@@ -145,17 +145,13 @@
   }
 
   async function loadProfile() {
-    const { data, error } = await getClient()
-      .from("profiles")
-      .select("id, username, display_name, role")
-      .eq("id", state.session.user.id)
-      .maybeSingle();
+    const { data, error } = await getClient().rpc("get_current_profile");
 
     if (error) {
       throw error;
     }
 
-    return data;
+    return data?.[0] || null;
   }
 
   async function loadPosts() {
@@ -213,11 +209,7 @@
   }
 
   async function loadUsers() {
-    const { data, error } = await getClient()
-      .from("profiles")
-      .select("id, username, display_name, role, created_at, updated_at")
-      .order("created_at", { ascending: false })
-      .limit(120);
+    const { data, error } = await getClient().rpc("admin_list_profiles");
 
     if (error) {
       throw error;
@@ -1073,7 +1065,10 @@
     }
 
     await runBusy(async function () {
-      const { error } = await getClient().from("profiles").update({ role }).eq("id", userId);
+      const { error } = await getClient().rpc("admin_set_profile_role", {
+        p_user_id: userId,
+        p_role: role
+      });
 
       if (error) {
         throw error;

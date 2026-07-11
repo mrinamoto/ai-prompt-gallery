@@ -240,11 +240,7 @@
       return;
     }
 
-    const { data, error } = await getClient()
-      .from("profiles")
-      .select("id, role, display_name, username")
-      .eq("id", state.session.user.id)
-      .maybeSingle();
+    const { data, error } = await getClient().rpc("get_current_profile");
 
     if (error) {
       console.warn(error.message);
@@ -252,7 +248,7 @@
       return;
     }
 
-    state.profile = data;
+    state.profile = data?.[0] || null;
   }
 
   async function fetchUserPostState() {
