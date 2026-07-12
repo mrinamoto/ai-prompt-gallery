@@ -40,12 +40,24 @@
     return getQuery().get("slug");
   }
 
+  function promptPostsApi() {
+    return window.PromptGalleryPromptPosts;
+  }
+
   function shouldUseSupabase() {
     const client = getClient();
     const requestedId = getRequestedPostId();
     const requestedSlug = getRequestedSlug();
 
     return Boolean(client && (requestedSlug || uuidPattern.test(String(requestedId || ""))));
+  }
+
+  function isPromptPost() {
+    return state.post?.source === "prompt_posts";
+  }
+
+  function isInteractiveSupabasePost() {
+    return state.mode === "supabase" && !isPromptPost();
   }
 
   function getDemoPostId() {
@@ -140,6 +152,16 @@
       return;
     }
 
+    if (isPromptPost()) {
+      try {
+        state.recommendations = await promptPostsApi().fetchRecommendations(state.post, 4);
+      } catch (error) {
+        console.warn(error.message);
+        state.recommendations = [];
+      }
+      return;
+    }
+
     const { data, error } = await getClient().rpc("get_recommended_posts", {
       p_post_id: state.post.id,
       p_category_slug: state.post.categorySlug,
@@ -176,6 +198,21 @@
     const client = getClient();
     const requestedId = getRequestedPostId();
     const requestedSlug = getRequestedSlug();
+
+    if (!requestedSlug && uuidPattern.test(String(requestedId || "")) && promptPostsApi()?.isConfigured()) {
+      let promptPost = null;
+
+      try {
+        promptPost = await promptPostsApi().fetchPostById(requestedId);
+      } catch (error) {
+        console.warn(error.message);
+      }
+
+      if (promptPost) {
+        return promptPost;
+      }
+    }
+
     let query = client
       .from("posts")
       .select(
@@ -252,7 +289,7 @@
   }
 
   async function fetchUserPostState() {
-    if (state.mode !== "supabase" || !state.session) {
+    if (!isInteractiveSupabasePost() || !state.session) {
       state.liked = false;
       state.saved = false;
       state.userRating = 0;
@@ -280,7 +317,7 @@
   }
 
   async function fetchSupabaseComments() {
-    if (state.mode !== "supabase") {
+    if (!isInteractiveSupabasePost()) {
       state.comments = [];
       return;
     }
@@ -306,7 +343,7 @@
   }
 
   async function refreshSupabasePostCounts() {
-    if (state.mode !== "supabase") {
+    if (!isInteractiveSupabasePost()) {
       return;
     }
 
@@ -356,7 +393,7 @@
   }
 
   async function recordSupabaseView() {
-    if (state.mode !== "supabase") {
+    if (!isInteractiveSupabasePost()) {
       return;
     }
 
@@ -417,7 +454,9 @@
     elements.details.innerHTML = renderDetails(post);
     elements.similar.innerHTML = getSimilarPosts(post).map(renderSimilarCard).join("");
     elements.sourceNote.textContent =
-      state.mode === "supabase"
+      isPromptPost()
+        ? "This prompt was uploaded through the Supabase CMS. Copying and recommendations are active; likes, saves, ratings, comments, and view counters remain connected to legacy posts."
+        : state.mode === "supabase"
         ? "These values are loaded from Supabase and update as visitors interact."
         : "These values are local demo data. Open a Supabase post UUID to use real interactions.";
 
@@ -543,16 +582,30 @@
   }
 
   function renderActionButtons() {
+    const disabled = isPromptPost();
+
     elements.likeButton.classList.toggle("button--primary", state.liked);
     elements.likeButton.classList.toggle("button--ghost", !state.liked);
     elements.likeLabel.textContent = state.liked ? "Liked" : "Like";
+    elements.likeButton.disabled = disabled;
 
     elements.saveButton.classList.toggle("button--secondary", state.saved);
     elements.saveButton.classList.toggle("button--ghost", !state.saved);
     elements.saveLabel.textContent = state.saved ? "Saved" : "Save";
+    elements.saveButton.disabled = disabled;
   }
 
   function renderRatingControl() {
+    if (isPromptPost()) {
+      elements.ratingButtons.forEach((button) => {
+        button.classList.remove("is-active");
+        button.setAttribute("aria-pressed", "false");
+        button.disabled = true;
+      });
+      elements.ratingHelp.textContent = "Ratings are not enabled for prompt_posts CMS posts in this version.";
+      return;
+    }
+
     const rating = state.mode === "demo" ? state.demoRating : state.userRating;
     elements.ratingButtons.forEach((button) => {
       const value = Number(button.dataset.ratePost);
@@ -575,6 +628,18 @@
   }
 
   function renderCommentTools() {
+    if (isPromptPost()) {
+      elements.commentForm.hidden = true;
+      elements.commentAuthNote.hidden = true;
+      elements.commentStatus.textContent = "";
+      elements.comments.innerHTML = `
+        <div class="empty-state">
+          <p class="mb-0">Comments are not enabled for prompt_posts CMS posts in this version.</p>
+        </div>
+      `;
+      return;
+    }
+
     if (state.mode !== "supabase") {
       elements.commentForm.hidden = true;
       elements.commentAuthNote.hidden = true;

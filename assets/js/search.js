@@ -1,5 +1,4 @@
-// Phase 8 search and recommendations.
-// Uses Supabase RPC helpers when configured, with a demo-data fallback for beginner testing.
+// Search and recommendations for demo data or Supabase prompt_posts.
 (function () {
   const demoPosts = window.PromptGalleryDemo?.posts || [];
   const defaultSuggestions = ["cinematic", "portrait", "product", "architecture", "fantasy", "neon", "anime", "studio"];
@@ -17,13 +16,14 @@
     trending: [],
     similar: [],
     youMayLike: [],
+    allSupabasePosts: [],
     renderTimer: null
   };
 
   const elements = {};
 
-  function getClient() {
-    return window.PromptGalleryAuth?.getClient();
+  function api() {
+    return window.PromptGalleryPromptPosts;
   }
 
   function slugify(value) {
@@ -48,33 +48,7 @@
   }
 
   function getPostUrl(post) {
-    return post.source === "supabase" ? `./post.html?id=${post.id}` : `./post.html?id=${post.id}`;
-  }
-
-  function normalizeRpcPost(row) {
-    return {
-      id: row.id,
-      source: "supabase",
-      title: row.title,
-      description: row.description,
-      prompt: row.prompt,
-      negativePrompt: row.negative_prompt,
-      imageUrl: row.image_url,
-      category: row.category_name || "Uncategorized",
-      categorySlug: row.category_slug || "",
-      tool: row.ai_tool,
-      model: row.ai_model,
-      aspectRatio: row.aspect_ratio,
-      views: row.views_count || 0,
-      likes: row.likes_count || 0,
-      saves: row.saves_count || 0,
-      rating: Number(row.average_rating) || 0,
-      ratingCount: row.rating_count || 0,
-      commentsCount: row.comments_count || 0,
-      createdAt: row.published_at || row.created_at,
-      tags: Array.isArray(row.tags) ? row.tags : [],
-      score: Number(row.rank ?? row.recommendation_score ?? 0)
-    };
+    return `./post.html?id=${encodeURIComponent(post.id)}`;
   }
 
   function normalizeDemoPost(post) {
@@ -162,34 +136,14 @@
     }
 
     const text = query.toLowerCase();
-    const title = post.title.toLowerCase();
-    const description = post.description.toLowerCase();
-    const prompt = post.prompt.toLowerCase();
-    const category = post.category.toLowerCase();
-    const tags = post.tags.join(" ").toLowerCase();
-    let score = 0;
+    const fields = [post.title, post.description, post.prompt, post.category, post.tool, post.model, ...post.tags]
+      .join(" ")
+      .toLowerCase();
 
-    if (title.includes(text)) score += 8;
-    if (description.includes(text)) score += 5;
-    if (prompt.includes(text)) score += 3;
-    if (category.includes(text)) score += 4;
-    if (tags.includes(text)) score += 5;
-
-    query
+    return text
       .split(/\s+/)
       .filter(Boolean)
-      .forEach((term) => {
-        if (title.includes(term)) score += 2;
-        if (description.includes(term)) score += 1.5;
-        if (prompt.includes(term)) score += 1;
-        if (tags.includes(term)) score += 2;
-      });
-
-    if (score === 0) {
-      return 0;
-    }
-
-    return score + post.rating + post.likes / 1000;
+      .reduce((score, term) => score + (fields.includes(term) ? 4 : 0), fields.includes(text) ? 8 : 0);
   }
 
   function searchDemoPosts() {
@@ -230,80 +184,29 @@
   }
 
   async function loadSupabaseFilters() {
-    const client = getClient();
-    const [categoryResult, toolResult] = await Promise.all([
-      client.from("categories").select("name, slug").eq("is_active", true).order("sort_order", { ascending: true }),
-      client.from("posts").select("ai_tool").eq("is_published", true).limit(200)
-    ]);
-
-    if (categoryResult.error) {
-      throw categoryResult.error;
-    }
-
-    if (toolResult.error) {
-      throw toolResult.error;
-    }
-
-    state.categories = categoryResult.data || [];
-    state.tools = [...new Set((toolResult.data || []).map((row) => row.ai_tool).filter(Boolean))].sort();
+    const filters = await api().getFilters();
+    state.allSupabasePosts = filters.posts;
+    state.categories = filters.categories;
+    state.tools = filters.tools;
   }
 
   async function searchSupabasePosts() {
-    const client = getClient();
+    state.results = await api().search({
+      query: state.query,
+      category: state.category,
+      tool: state.tool,
+      sort: state.sort,
+      limit: 36
+    });
+
     const category = state.category === "all" ? null : state.category;
-    const tool = state.tool === "all" ? null : state.tool;
-    const args = {
-      p_search_text: state.query,
-      p_category_slug: category,
-      p_ai_tool: tool,
-      p_sort_by: state.sort,
-      p_limit: 36
-    };
+    const source = state.allSupabasePosts.length ? state.allSupabasePosts : await api().fetchPublished({ limit: 160 });
+    const scoped = category ? source.filter((post) => post.categorySlug === category) : source;
 
-    const { data, error } = await client.rpc("search_posts", args);
-
-    if (error) {
-      throw error;
-    }
-
-    state.results = (data || []).map(normalizeRpcPost);
-
-    const [trendingResult, relatedResult, similarResult, recommendedResult] = await Promise.all([
-      client.rpc("search_posts", {
-        p_search_text: "",
-        p_category_slug: category,
-        p_ai_tool: null,
-        p_sort_by: "trending",
-        p_limit: 5
-      }),
-      client.rpc("get_related_searches", {
-        p_search_text: state.query,
-        p_category_slug: category,
-        p_limit: 10
-      }),
-      client.rpc("get_recommended_posts", {
-        p_post_id: state.results[0]?.id || null,
-        p_category_slug: state.results[0]?.categorySlug || category,
-        p_tag_names: state.results[0]?.tags || [],
-        p_limit: 4
-      }),
-      client.rpc("get_recommended_posts", {
-        p_post_id: null,
-        p_category_slug: category,
-        p_tag_names: state.results[0]?.tags || [],
-        p_limit: 8
-      })
-    ]);
-
-    if (trendingResult.error) throw trendingResult.error;
-    if (relatedResult.error) throw relatedResult.error;
-    if (similarResult.error) throw similarResult.error;
-    if (recommendedResult.error) throw recommendedResult.error;
-
-    state.trending = (trendingResult.data || []).map(normalizeRpcPost);
-    state.related = relatedResult.data || [];
-    state.similar = (similarResult.data || []).map(normalizeRpcPost);
-    state.youMayLike = (recommendedResult.data || []).map(normalizeRpcPost);
+    state.trending = [...scoped].sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0)).slice(0, 5);
+    state.similar = api().recommend(state.results[0], scoped, 4);
+    state.youMayLike = api().recommend(state.results[0] || state.trending[0], scoped, 8);
+    state.related = api().getRelatedFromPosts([...state.results, ...state.trending], 10);
   }
 
   function getRelatedFromPosts(posts) {
@@ -453,8 +356,8 @@
     elements.count.textContent = `${state.results.length} result${state.results.length === 1 ? "" : "s"}`;
     elements.modeNote.textContent =
       state.mode === "supabase"
-        ? "Supabase search is active. Results use ranked database search, category/tag matches, and recommendation RPCs."
-        : "Demo search is active. Add Supabase keys and run the Phase 8 SQL to search database posts.";
+        ? "Supabase CMS search is active. Results come from published prompt_posts."
+        : "Demo search is active. Add Supabase keys and run the prompt_posts SQL to search uploaded content.";
 
     elements.results.innerHTML = state.results.map(renderCard).join("");
     elements.trending.innerHTML = state.trending.length
@@ -481,7 +384,7 @@
     }
 
     try {
-      if (getClient()) {
+      if (api()?.isConfigured()) {
         state.mode = "supabase";
         await searchSupabasePosts();
       } else {
@@ -495,7 +398,7 @@
       state.tools = getDemoTools();
       renderFilters();
       searchDemoPosts();
-      elements.modeNote.textContent = "Demo fallback is active. Run the latest Phase 8 SQL in Supabase to enable database search.";
+      elements.modeNote.textContent = "Demo fallback is active. Run database/prompt-posts.sql in Supabase to enable CMS search.";
     }
 
     renderResults();
@@ -511,7 +414,7 @@
 
   async function loadFilters() {
     try {
-      if (getClient()) {
+      if (api()?.isConfigured()) {
         state.mode = "supabase";
         await loadSupabaseFilters();
       } else {

@@ -57,6 +57,7 @@ ai-prompt-gallery/
 |       |-- demo-data.js
 |       |-- home.js
 |       |-- post.js
+|       |-- prompt-posts-api.js
 |       |-- profile.js
 |       |-- search.js
 |       |-- supabase-client.js
@@ -64,8 +65,10 @@ ai-prompt-gallery/
 |-- database/
 |   |-- README.md
 |   |-- make-admin.sql
+|   |-- prompt-posts.sql
 |   `-- schema.sql
 |-- docs/
+|   |-- admin-upload-guide.md
 |   |-- phase-01-project-setup.md
 |   |-- phase-02-folder-structure-design-system.md
 |   |-- phase-03-homepage-masonry-feed.md
@@ -136,21 +139,28 @@ python -m http.server 5500
 database/schema.sql
 ```
 
-4. Open:
+4. Run the admin CMS migration:
+
+```text
+database/prompt-posts.sql
+```
+
+5. Open:
 
 ```text
 assets/js/supabase-client.js
 ```
 
-5. Replace the placeholders with your Supabase Project URL and anon public key.
-6. Sign up through `auth.html`.
-7. To make yourself admin, open:
+6. Replace the placeholders with your Supabase Project URL and anon public key.
+7. Sign up through `auth.html`.
+8. To make yourself admin, open:
 
 ```text
 database/make-admin.sql
 ```
 
-8. Replace the placeholder email with your sign-in email and run it in Supabase SQL Editor.
+9. Replace the placeholder email with your sign-in email and run it in Supabase SQL Editor.
+10. Open `admin.html` to upload, edit, publish, draft, and delete `prompt_posts` content.
 
 ## Security Notes
 
@@ -159,7 +169,8 @@ database/make-admin.sql
 - `.env`, `.env.local`, and other local secret files are ignored by Git.
 - `database/schema.sql` enables Row Level Security and narrows browser grants.
 - Admin actions are protected by Supabase policies and role-checking RPC functions.
-- Storage uploads are scoped to the `post-images/posts/{admin-user-id}/` folder pattern.
+- Legacy Storage uploads are scoped to the `post-images/posts/{admin-user-id}/` folder pattern.
+- Admin CMS uploads are scoped to the `prompt-images/posts/{admin-user-id}/` folder pattern.
 
 ## Main Pages
 
@@ -284,6 +295,12 @@ docs/phase-13-free-deployment.md
 ## Documentation
 
 The `docs/` folder contains the full phase-by-phase build history, including Supabase setup, authentication, interactions, search, profiles, admin, security, GitHub upload, and free deployment notes.
+
+For the admin upload CMS, start here:
+
+```text
+docs/admin-upload-guide.md
+```
 
 ## License
 

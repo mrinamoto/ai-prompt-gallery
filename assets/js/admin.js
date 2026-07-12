@@ -10,39 +10,32 @@
     users: [],
     activeTab: "posts",
     postSearch: "",
+    postCategory: "all",
     postStatus: "all",
     busy: false
   };
 
   const elements = {};
-  const bucketName = "post-images";
+  const bucketName = "prompt-images";
 
   const postSelect = `
     id,
-    author_id,
-    category_id,
     title,
-    slug,
-    description,
     prompt,
     negative_prompt,
     image_url,
     image_path,
     ai_tool,
-    ai_model,
+    model,
+    category,
+    tags,
     aspect_ratio,
-    is_published,
-    published_at,
-    views_count,
-    likes_count,
-    saves_count,
-    rating_count,
-    average_rating,
-    comments_count,
+    style,
+    status,
+    notes,
+    created_by,
     created_at,
-    updated_at,
-    categories(id, name, slug),
-    post_tags(tags(id, name, slug))
+    updated_at
   `;
 
   function getClient() {
@@ -104,14 +97,20 @@
   }
 
   function normalizePost(row) {
-    const tags = Array.isArray(row.post_tags)
-      ? row.post_tags.map((item) => item.tags).filter(Boolean)
-      : [];
+    const tags = Array.isArray(row.tags) ? row.tags.map((name) => ({ name, slug: slugify(name) })) : [];
 
     return {
       ...row,
-      categoryName: row.categories?.name || "Uncategorized",
-      categorySlug: row.categories?.slug || "",
+      categoryName: row.category || "Uncategorized",
+      categorySlug: slugify(row.category || "uncategorized"),
+      ai_model: row.model || "",
+      is_published: row.status === "published",
+      views_count: 0,
+      likes_count: 0,
+      saves_count: 0,
+      rating_count: 0,
+      average_rating: 0,
+      comments_count: 0,
       tags
     };
   }
@@ -156,7 +155,7 @@
 
   async function loadPosts() {
     const { data, error } = await getClient()
-      .from("posts")
+      .from("prompt_posts")
       .select(postSelect)
       .order("updated_at", { ascending: false });
 
@@ -243,6 +242,7 @@
     elements.denied.hidden = true;
     elements.content.hidden = false;
     renderCategoryOptions();
+    renderPostCategoryFilter();
     renderStats();
     renderPosts();
     renderCategories();
@@ -254,10 +254,32 @@
   }
 
   function renderCategoryOptions() {
+    if (!elements.categoryOptions) {
+      return;
+    }
+
     elements.categoryOptions.innerHTML = [
       '<option value="">Choose category</option>',
       ...state.categories.map((category) => `<option value="${category.id}">${escapeHtml(category.name)}${category.is_active ? "" : " (inactive)"}</option>`)
     ].join("");
+  }
+
+  function renderPostCategoryFilter() {
+    if (!elements.postCategoryFilter) {
+      return;
+    }
+
+    const categories = [...new Set(state.posts.map((post) => post.categoryName).filter(Boolean))].sort();
+
+    if (state.postCategory !== "all" && !categories.includes(state.postCategory)) {
+      state.postCategory = "all";
+    }
+
+    elements.postCategoryFilter.innerHTML = [
+      '<option value="all">All categories</option>',
+      ...categories.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`)
+    ].join("");
+    elements.postCategoryFilter.value = state.postCategory;
   }
 
   function renderStats() {
@@ -318,18 +340,23 @@
         return false;
       }
 
+      if (state.postCategory !== "all" && post.categoryName !== state.postCategory) {
+        return false;
+      }
+
       if (!search) {
         return true;
       }
 
       const text = [
         post.title,
-        post.slug,
-        post.description,
         post.prompt,
+        post.negative_prompt,
         post.ai_tool,
-        post.ai_model,
+        post.model,
         post.categoryName,
+        post.style,
+        post.notes,
         ...tagNames(post)
       ]
         .join(" ")
@@ -353,6 +380,7 @@
   function renderPostRow(post) {
     const statusClass = post.is_published ? "admin-status--published" : "admin-status--draft";
     const statusText = post.is_published ? "Published" : "Draft";
+    const tags = tagNames(post).slice(0, 3);
 
     return `
       <article class="admin-row">
@@ -361,12 +389,11 @@
         </a>
         <div>
           <h3>${escapeHtml(post.title)}</h3>
-          <p>${escapeHtml(post.categoryName)} - ${escapeHtml(post.ai_tool)} - ${formatDate(post.updated_at)}</p>
+          <p>${escapeHtml(post.categoryName)} - ${escapeHtml(post.ai_tool || "AI tool")} - ${escapeHtml(post.model || "Model")} - ${formatDate(post.updated_at)}</p>
           <div class="admin-row__meta">
             <span class="admin-status ${statusClass}">${statusText}</span>
-            <span class="badge">${formatNumber(post.views_count)} views</span>
-            <span class="badge badge--accent">${formatNumber(post.likes_count)} likes</span>
-            <span class="badge badge--gold">${Number(post.average_rating || 0).toFixed(1)} rating</span>
+            ${post.style ? `<span class="badge">${escapeHtml(post.style)}</span>` : ""}
+            ${tags.map((tag) => `<span class="badge badge--accent">#${escapeHtml(tag)}</span>`).join("")}
           </div>
         </div>
         <div class="admin-actions">
@@ -554,6 +581,7 @@
     fields.namedItem("image_url").value = "";
     fields.namedItem("image_path").value = "";
     fields.namedItem("aspect_ratio").value = "4 / 5";
+    fields.namedItem("status").value = "published";
     elements.postFormTitle.textContent = "Create post";
     elements.postImagePreview.hidden = true;
     elements.postImagePreview.innerHTML = "";
@@ -584,18 +612,18 @@
     const fields = getFields(elements.postForm);
     fields.namedItem("id").value = post.id;
     fields.namedItem("title").value = post.title || "";
-    fields.namedItem("slug").value = post.slug || "";
-    fields.namedItem("description").value = post.description || "";
     fields.namedItem("prompt").value = post.prompt || "";
     fields.namedItem("negative_prompt").value = post.negative_prompt || "";
-    fields.namedItem("category_id").value = post.category_id || "";
+    fields.namedItem("category").value = post.category || "";
     fields.namedItem("aspect_ratio").value = post.aspect_ratio || "4 / 5";
     fields.namedItem("ai_tool").value = post.ai_tool || "";
-    fields.namedItem("ai_model").value = post.ai_model || "";
+    fields.namedItem("model").value = post.model || "";
+    fields.namedItem("style").value = post.style || "";
     fields.namedItem("tags").value = tagNames(post).join(", ");
+    fields.namedItem("status").value = post.status || "published";
+    fields.namedItem("notes").value = post.notes || "";
     fields.namedItem("image_url").value = post.image_url || "";
     fields.namedItem("image_path").value = post.image_path || "";
-    fields.namedItem("is_published").checked = Boolean(post.is_published);
     elements.postFormTitle.textContent = "Edit post";
     renderImagePreview(post.image_url, post.image_path);
     activateTab("posts");
@@ -655,7 +683,7 @@
     `;
   }
 
-  async function uploadPostImage(file, slug) {
+  async function uploadPostImage(file) {
     if (!file) {
       return null;
     }
@@ -667,17 +695,18 @@
     const allowedExtensions = {
       "image/jpeg": "jpg",
       "image/png": "png",
-      "image/webp": "webp",
-      "image/gif": "gif"
+      "image/webp": "webp"
     };
     const extension = allowedExtensions[file.type];
 
     if (!extension) {
-      throw new Error("Upload a JPG, PNG, WebP, or GIF image.");
+      throw new Error("Upload a JPG, PNG, or WebP image.");
     }
 
-    const safeSlug = slugify(slug) || "prompt-image";
-    const safeName = `${Date.now()}-${safeSlug}-${Math.random().toString(16).slice(2)}.${extension}`;
+    const originalBase = file.name.replace(/\.[^.]+$/, "");
+    const safeOriginal = slugify(originalBase).slice(0, 60) || "prompt-image";
+    const random = Math.random().toString(16).slice(2, 10);
+    const safeName = `${state.session.user.id}_${Date.now()}_${random}_${safeOriginal}.${extension}`;
     const path = `posts/${state.session.user.id}/${safeName}`;
     const { error } = await getClient().storage.from(bucketName).upload(path, file, {
       contentType: file.type,
@@ -696,70 +725,6 @@
     };
   }
 
-  async function ensureTags(names) {
-    const tagItems = names
-      .map((name) => ({ name, slug: slugify(name) }))
-      .filter((tag) => tag.slug && tag.name.length >= 2);
-    const uniqueTags = [...new Map(tagItems.map((tag) => [tag.slug, tag])).values()];
-
-    if (!uniqueTags.length) {
-      return [];
-    }
-
-    const slugs = uniqueTags.map((tag) => tag.slug);
-    const { data: existing, error: selectError } = await getClient()
-      .from("tags")
-      .select("id, name, slug")
-      .in("slug", slugs);
-
-    if (selectError) {
-      throw selectError;
-    }
-
-    const existingSlugs = new Set((existing || []).map((tag) => tag.slug));
-    const missing = uniqueTags.filter((tag) => !existingSlugs.has(tag.slug));
-    let created = [];
-
-    if (missing.length) {
-      const { data, error } = await getClient()
-        .from("tags")
-        .insert(missing)
-        .select("id, name, slug");
-
-      if (error) {
-        throw error;
-      }
-
-      created = data || [];
-    }
-
-    return [...(existing || []), ...created];
-  }
-
-  async function syncPostTags(postId, tagText) {
-    const names = parseTags(tagText);
-    const tags = await ensureTags(names);
-    const { error: deleteError } = await getClient().from("post_tags").delete().eq("post_id", postId);
-
-    if (deleteError) {
-      throw deleteError;
-    }
-
-    if (!tags.length) {
-      return;
-    }
-
-    const rows = tags.map((tag) => ({
-      post_id: postId,
-      tag_id: tag.id
-    }));
-    const { error } = await getClient().from("post_tags").insert(rows);
-
-    if (error) {
-      throw error;
-    }
-  }
-
   async function handlePostSubmit(event) {
     event.preventDefault();
 
@@ -769,11 +734,21 @@
 
     const fields = getFields(elements.postForm);
     const title = fields.namedItem("title").value.trim();
-    const slug = slugify(fields.namedItem("slug").value || title);
+    const prompt = fields.namedItem("prompt").value.trim();
+    const aiTool = fields.namedItem("ai_tool").value.trim();
+    const model = fields.namedItem("model").value.trim();
+    const category = fields.namedItem("category").value.trim();
+    const aspectRatio = fields.namedItem("aspect_ratio").value.trim();
     const imageFile = fields.namedItem("image_file").files[0];
     const existingImageUrl = fields.namedItem("image_url").value;
     const existingImagePath = fields.namedItem("image_path").value;
-    const upload = imageFile ? await runBusy(() => uploadPostImage(imageFile, slug), "Uploading image...") : null;
+
+    if (!title || !prompt || !aiTool || !model || !category || !aspectRatio) {
+      showStatus("Title, prompt, AI tool, model, category, and aspect ratio are required.", "error");
+      return;
+    }
+
+    const upload = imageFile ? await runBusy(() => uploadPostImage(imageFile), "Uploading image...") : null;
 
     if (imageFile && !upload) {
       return;
@@ -787,49 +762,53 @@
       return;
     }
 
-    if (!slug) {
-      showStatus("Add a clearer title or slug before saving.", "error");
-      return;
-    }
-
+    const tags = parseTags(fields.namedItem("tags").value);
     const payload = {
-      category_id: fields.namedItem("category_id").value,
       title,
-      slug,
-      description: fields.namedItem("description").value.trim(),
-      prompt: fields.namedItem("prompt").value.trim(),
+      prompt,
       negative_prompt: fields.namedItem("negative_prompt").value.trim() || null,
       image_url,
       image_path,
-      ai_tool: fields.namedItem("ai_tool").value.trim(),
-      ai_model: fields.namedItem("ai_model").value.trim(),
-      aspect_ratio: fields.namedItem("aspect_ratio").value.trim(),
-      is_published: fields.namedItem("is_published").checked
+      ai_tool: aiTool,
+      model,
+      category,
+      tags,
+      aspect_ratio: aspectRatio,
+      style: fields.namedItem("style").value.trim() || null,
+      status: fields.namedItem("status").value === "draft" ? "draft" : "published",
+      notes: fields.namedItem("notes").value.trim() || null
     };
     const postId = fields.namedItem("id").value;
+    const previousImagePath = existingImagePath;
 
     await runBusy(async function () {
       const query = postId
-        ? getClient().from("posts").update(payload).eq("id", postId).select("id").single()
+        ? getClient().from("prompt_posts").update(payload).eq("id", postId).select("id").single()
         : getClient()
-            .from("posts")
-            .insert({ ...payload, author_id: state.session.user.id })
+            .from("prompt_posts")
+            .insert({ ...payload, created_by: state.session.user.id })
             .select("id")
             .single();
 
       const { data, error } = await query;
 
       if (error) {
+        if (upload?.image_path) {
+          await getClient().storage.from(bucketName).remove([upload.image_path]);
+        }
+
         throw error;
       }
 
-      await syncPostTags(data.id, fields.namedItem("tags").value);
-      await Promise.all([loadPosts(), loadTags()]);
+      if (upload?.image_path && previousImagePath && previousImagePath !== upload.image_path) {
+        await getClient().storage.from(bucketName).remove([previousImagePath]);
+      }
+
+      await loadPosts();
       resetPostForm();
-      renderCategoryOptions();
+      renderPostCategoryFilter();
       renderStats();
       renderPosts();
-      renderTags();
       renderAnalytics();
       showStatus("Post saved.", "success");
     }, "Saving post...");
@@ -858,7 +837,8 @@
     }
 
     await runBusy(async function () {
-      const { error } = await getClient().from("posts").update({ is_published: !post.is_published }).eq("id", postId);
+      const nextStatus = post.is_published ? "draft" : "published";
+      const { error } = await getClient().from("prompt_posts").update({ status: nextStatus }).eq("id", postId);
 
       if (error) {
         throw error;
@@ -880,7 +860,7 @@
     }
 
     await runBusy(async function () {
-      const { error } = await getClient().from("posts").delete().eq("id", postId);
+      const { error } = await getClient().from("prompt_posts").delete().eq("id", postId);
 
       if (error) {
         throw error;
@@ -890,10 +870,10 @@
         await getClient().storage.from(bucketName).remove([post.image_path]);
       }
 
-      await Promise.all([loadPosts(), loadComments()]);
+      await loadPosts();
+      renderPostCategoryFilter();
       renderStats();
       renderPosts();
-      renderComments();
       renderAnalytics();
       showStatus("Post deleted.", "success");
     }, "Deleting post...");
@@ -1190,17 +1170,13 @@
       state.postSearch = event.target.value.trim();
       renderPosts();
     });
+    elements.postCategoryFilter.addEventListener("change", function (event) {
+      state.postCategory = event.target.value;
+      renderPosts();
+    });
     elements.postStatusFilter.addEventListener("change", function (event) {
       state.postStatus = event.target.value;
       renderPosts();
-    });
-
-    getFields(elements.postForm).namedItem("title").addEventListener("input", function () {
-      const fields = getFields(elements.postForm);
-
-      if (!fields.namedItem("id").value) {
-        fields.namedItem("slug").value = slugify(fields.namedItem("title").value);
-      }
     });
 
     getFields(elements.categoryForm).namedItem("name").addEventListener("input", function () {
@@ -1232,6 +1208,7 @@
     elements.postFormTitle = document.querySelector("[data-post-form-title]");
     elements.postImagePreview = document.querySelector("[data-post-image-preview]");
     elements.postFilter = document.querySelector("[data-post-filter]");
+    elements.postCategoryFilter = document.querySelector("[data-post-category-filter]");
     elements.postStatusFilter = document.querySelector("[data-post-status-filter]");
     elements.categoryOptions = document.querySelector("[data-category-options]");
     elements.postsList = document.querySelector("[data-posts-list]");

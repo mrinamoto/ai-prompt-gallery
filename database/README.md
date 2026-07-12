@@ -8,6 +8,9 @@ Run these files in Supabase SQL Editor during Phase 5.
 2. `make-admin.sql`
    Promotes your own Supabase Auth user to admin after you create the user.
 
+3. `prompt-posts.sql`
+   Adds the admin-upload CMS table `prompt_posts`, the `prompt-images` Storage bucket, and admin-only upload/edit/delete RLS policies. Run this after `schema.sql`.
+
 Never paste a Supabase `service_role` key into frontend JavaScript or GitHub.
 
 Phase 6 adds one extra profile insert policy to `schema.sql` so the protected account page can safely create the signed-in user's own profile if it is missing. If you already ran the Phase 5 schema, see `docs/phase-06-authentication.md` for the small SQL update.
@@ -21,3 +24,5 @@ Phase 9 expands profile and collection visibility for public profile pages and p
 Phase 10 uses the existing admin policies and `post-images` storage bucket. No service role key is needed in the frontend. To access the dashboard, create your auth user first, then run `make-admin.sql` with your email.
 
 Phase 11 tightens grants, profile role access, admin role changes, post validation, system-managed counters, and Storage folder policies. If your database was created before Phase 11, run the latest `schema.sql` again or follow `docs/phase-11-security-rls.md`.
+
+Admin CMS update: the current dashboard creates uploaded image prompt posts in `prompt_posts` and stores files in the `prompt-images` bucket. See `docs/admin-upload-guide.md`.

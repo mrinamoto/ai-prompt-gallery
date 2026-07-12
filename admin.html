@@ -119,12 +119,8 @@
                   <input class="input" type="text" name="title" maxlength="140" required />
                 </label>
                 <label class="field">
-                  <span>Slug</span>
-                  <input class="input" type="text" name="slug" maxlength="160" required />
-                </label>
-                <label class="field form-grid__full">
-                  <span>Description</span>
-                  <textarea class="textarea" name="description" maxlength="500" required></textarea>
+                  <span>AI tool</span>
+                  <input class="input" type="text" name="ai_tool" placeholder="Midjourney" maxlength="80" required />
                 </label>
                 <label class="field form-grid__full">
                   <span>Full prompt</span>
@@ -136,32 +132,39 @@
                 </label>
                 <label class="field">
                   <span>Category</span>
-                  <select class="select" name="category_id" required data-category-options></select>
+                  <input class="input" type="text" name="category" placeholder="Portrait" maxlength="80" required />
                 </label>
                 <label class="field">
                   <span>Aspect ratio</span>
                   <input class="input" type="text" name="aspect_ratio" placeholder="4 / 5" maxlength="20" required />
                 </label>
                 <label class="field">
-                  <span>AI tool</span>
-                  <input class="input" type="text" name="ai_tool" placeholder="Midjourney" maxlength="80" required />
+                  <span>AI model</span>
+                  <input class="input" type="text" name="model" placeholder="v6.1" maxlength="120" required />
                 </label>
                 <label class="field">
-                  <span>AI model</span>
-                  <input class="input" type="text" name="ai_model" placeholder="v6.1" maxlength="80" required />
+                  <span>Style/type</span>
+                  <input class="input" type="text" name="style" placeholder="Cinematic" maxlength="80" />
                 </label>
                 <label class="field form-grid__full">
                   <span>Tags</span>
                   <input class="input" type="text" name="tags" placeholder="cinematic, portrait, studio" />
                 </label>
+                <label class="field">
+                  <span>Visibility</span>
+                  <select class="select" name="status">
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                  </select>
+                </label>
                 <label class="field form-grid__full">
                   <span>Image upload</span>
-                  <input class="input" type="file" name="image_file" accept="image/png,image/jpeg,image/webp,image/gif" />
+                  <input class="input" type="file" name="image_file" accept="image/png,image/jpeg,image/webp" />
                 </label>
                 <div class="admin-image-preview form-grid__full" data-post-image-preview hidden></div>
-                <label class="admin-check form-grid__full">
-                  <input type="checkbox" name="is_published" />
-                  <span>Publish post</span>
+                <label class="field form-grid__full">
+                  <span>Optional notes</span>
+                  <textarea class="textarea" name="notes" maxlength="2000"></textarea>
                 </label>
                 <div class="form-grid__full cluster">
                   <button class="button button--primary" type="submit" data-post-submit>Save post</button>
@@ -179,6 +182,9 @@
               </div>
               <div class="admin-toolbar">
                 <input class="input" type="search" placeholder="Search posts" data-post-filter />
+                <select class="select" data-post-category-filter>
+                  <option value="all">All categories</option>
+                </select>
                 <select class="select" data-post-status-filter>
                   <option value="all">All statuses</option>
                   <option value="published">Published</option>
@@ -338,6 +344,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./assets/js/supabase-client.js"></script>
     <script src="./assets/js/auth-state.js"></script>
+    <script src="./assets/js/prompt-posts-api.js"></script>
     <script src="./assets/js/app.js"></script>
     <script src="./assets/js/admin.js"></script>
   </body>

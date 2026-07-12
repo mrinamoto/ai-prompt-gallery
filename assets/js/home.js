@@ -1,9 +1,10 @@
-// Phase 3 homepage behavior.
-// This file uses temporary demo data only. Supabase data will replace this later.
+// Homepage behavior. Loads Supabase prompt_posts first, then falls back to demo data.
 (function () {
   const demoPosts = window.PromptGalleryDemo?.posts || [];
 
   const state = {
+    mode: "loading",
+    posts: [],
     category: "All",
     tool: "All",
     sort: "for-you",
@@ -13,26 +14,39 @@
 
   const elements = {};
 
+  function api() {
+    return window.PromptGalleryPromptPosts;
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
   function formatNumber(value) {
-    return new Intl.NumberFormat("en", { notation: "compact" }).format(value);
+    return new Intl.NumberFormat("en", { notation: "compact" }).format(Number(value) || 0);
   }
 
   function getCategories() {
-    return ["All", ...new Set(demoPosts.map((post) => post.category))];
+    return ["All", ...new Set(state.posts.map((post) => post.category).filter(Boolean))];
   }
 
   function getTools() {
-    return ["All", ...new Set(demoPosts.map((post) => post.tool))];
+    return ["All", ...new Set(state.posts.map((post) => post.tool).filter(Boolean))];
   }
 
   function getPostUrl(post) {
-    return `./post.html?id=${post.id}`;
+    return `./post.html?id=${encodeURIComponent(post.id)}`;
   }
 
   function getFilteredPosts() {
     const query = state.query.trim().toLowerCase();
 
-    return demoPosts
+    return state.posts
       .filter((post) => state.category === "All" || post.category === state.category)
       .filter((post) => state.tool === "All" || post.tool === state.tool)
       .filter((post) => {
@@ -47,7 +61,8 @@
           post.category,
           post.tool,
           post.model,
-          ...post.tags
+          post.style,
+          ...(post.tags || [])
         ]
           .join(" ")
           .toLowerCase();
@@ -58,30 +73,26 @@
   }
 
   function sortPosts(a, b) {
-    if (state.sort === "trending") {
-      return Number(b.trending) - Number(a.trending) || b.views + b.likes - (a.views + a.likes);
-    }
-
-    if (state.sort === "popular") {
-      return b.likes + b.views - (a.likes + a.views);
+    if (state.sort === "trending" || state.sort === "popular") {
+      return b.likes + b.views - (a.likes + a.views) || new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt);
     }
 
     if (state.sort === "newest") {
-      return new Date(b.createdAt) - new Date(a.createdAt);
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
     }
 
-    const scoreA = a.rating * 1000 + a.likes + (a.trending ? 1200 : 0);
-    const scoreB = b.rating * 1000 + b.likes + (b.trending ? 1200 : 0);
+    const scoreA = (a.rating || 0) * 1000 + (a.likes || 0) + (a.trending ? 1200 : 0);
+    const scoreB = (b.rating || 0) * 1000 + (b.likes || 0) + (b.trending ? 1200 : 0);
 
-    return scoreB - scoreA;
+    return scoreB - scoreA || new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
   }
 
   function renderCategories() {
     elements.categoryFilters.innerHTML = getCategories()
       .map(
         (category) => `
-          <button class="chip${category === state.category ? " is-active" : ""}" type="button" data-category="${category}">
-            ${category}
+          <button class="chip${category === state.category ? " is-active" : ""}" type="button" data-category="${escapeHtml(category)}">
+            ${escapeHtml(category)}
           </button>
         `
       )
@@ -90,14 +101,14 @@
 
   function renderTools() {
     elements.toolFilter.innerHTML = getTools()
-      .map((tool) => `<option value="${tool}">${tool === "All" ? "All tools" : tool}</option>`)
+      .map((tool) => `<option value="${escapeHtml(tool)}">${tool === "All" ? "All tools" : escapeHtml(tool)}</option>`)
       .join("");
   }
 
   function renderHeroStats() {
-    elements.totalPosts.textContent = demoPosts.length;
-    elements.categoryCount.textContent = getCategories().length - 1;
-    elements.toolCount.textContent = getTools().length - 1;
+    elements.totalPosts.textContent = state.posts.length;
+    elements.categoryCount.textContent = Math.max(getCategories().length - 1, 0);
+    elements.toolCount.textContent = Math.max(getTools().length - 1, 0);
   }
 
   function renderSkeleton() {
@@ -139,17 +150,17 @@
   }
 
   function renderPostCard(post) {
-    const visibleTags = post.tags.slice(0, 3);
+    const visibleTags = (post.tags || []).slice(0, 3);
 
     return `
       <article class="masonry-card">
-        <div class="masonry-card__media" style="--card-ratio: ${post.aspectRatio}">
-          <a class="masonry-card__image-link" href="${getPostUrl(post)}" aria-label="Open ${post.title}">
-            <img src="${post.imageUrl}" alt="${post.title}" loading="lazy" />
+        <div class="masonry-card__media" style="--card-ratio: ${escapeHtml(post.aspectRatio || "4 / 5")}">
+          <a class="masonry-card__image-link" href="${getPostUrl(post)}" aria-label="Open ${escapeHtml(post.title)}">
+            <img src="${escapeHtml(post.imageUrl)}" alt="${escapeHtml(post.title)}" loading="lazy" />
           </a>
           <div class="masonry-card__overlay">
             <a class="masonry-card__open" href="${getPostUrl(post)}">View prompt</a>
-            <button class="icon-button masonry-card__save" type="button" data-save-post="${post.id}" aria-label="Save ${post.title}">
+            <button class="icon-button masonry-card__save" type="button" data-save-post="${escapeHtml(post.id)}" aria-label="Save ${escapeHtml(post.title)}">
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M19 21 12 17 5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
               </svg>
@@ -158,20 +169,20 @@
         </div>
         <div class="masonry-card__body">
           <div class="cluster">
-            <span class="badge">${post.category}</span>
-            <span class="badge badge--accent">${post.tool}</span>
+            <span class="badge">${escapeHtml(post.category)}</span>
+            <span class="badge badge--accent">${escapeHtml(post.tool)}</span>
           </div>
           <h3 class="masonry-card__title">
-            <a href="${getPostUrl(post)}">${post.title}</a>
+            <a href="${getPostUrl(post)}">${escapeHtml(post.title)}</a>
           </h3>
-          <p class="masonry-card__description">${post.description}</p>
+          <p class="masonry-card__description">${escapeHtml(post.description)}</p>
           <div class="tag-row">
-            ${visibleTags.map((tag) => `<span class="tag-pill">#${tag}</span>`).join("")}
+            ${visibleTags.map((tag) => `<span class="tag-pill">#${escapeHtml(tag)}</span>`).join("")}
           </div>
           <div class="masonry-card__meta">
             <span>${formatNumber(post.views)} views</span>
             <span>${formatNumber(post.likes)} likes</span>
-            <span>${post.rating.toFixed(1)} rating</span>
+            <span>${Number(post.rating || 0).toFixed(1)} rating</span>
           </div>
         </div>
       </article>
@@ -179,9 +190,9 @@
   }
 
   function renderMiniLists() {
-    const trending = [...demoPosts].sort((a, b) => Number(b.trending) - Number(a.trending) || b.views - a.views);
-    const popular = [...demoPosts].sort((a, b) => b.likes - a.likes);
-    const newest = [...demoPosts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const trending = [...state.posts].sort((a, b) => Number(b.trending) - Number(a.trending) || new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
+    const popular = [...state.posts].sort((a, b) => (b.likes || 0) - (a.likes || 0) || new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    const newest = [...state.posts].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
     elements.trendingList.innerHTML = trending.slice(0, 4).map(renderMiniCard).join("");
     elements.popularList.innerHTML = popular.slice(0, 4).map(renderMiniCard).join("");
@@ -196,11 +207,11 @@
     return `
       <a class="mini-card" href="${getPostUrl(post)}">
         <div class="mini-card__image">
-          <img src="${post.imageUrl}" alt="" loading="lazy" />
+          <img src="${escapeHtml(post.imageUrl)}" alt="" loading="lazy" />
         </div>
         <div>
-          <h4>${post.title}</h4>
-          <p>${formatNumber(post.likes)} likes - ${post.rating.toFixed(1)} rating</p>
+          <h4>${escapeHtml(post.title)}</h4>
+          <p>${formatNumber(post.likes)} likes - ${Number(post.rating || 0).toFixed(1)} rating</p>
         </div>
       </a>
     `;
@@ -210,14 +221,14 @@
     return `
       <article class="rail-card">
         <a class="rail-card__image" href="${getPostUrl(post)}">
-          <img src="${post.imageUrl}" alt="${post.title}" loading="lazy" />
+          <img src="${escapeHtml(post.imageUrl)}" alt="${escapeHtml(post.title)}" loading="lazy" />
         </a>
         <div class="rail-card__body">
           <div class="cluster">
-            <span class="badge">${post.category}</span>
-            <span class="badge badge--accent">${post.tool}</span>
+            <span class="badge">${escapeHtml(post.category)}</span>
+            <span class="badge badge--accent">${escapeHtml(post.tool)}</span>
           </div>
-          <h3><a href="${getPostUrl(post)}">${post.title}</a></h3>
+          <h3><a href="${getPostUrl(post)}">${escapeHtml(post.title)}</a></h3>
           <p>${formatNumber(post.views)} views - ${formatNumber(post.likes)} likes</p>
         </div>
       </article>
@@ -233,6 +244,23 @@
     window.setTimeout(function () {
       toast.remove();
     }, 2400);
+  }
+
+  async function loadPosts() {
+    renderSkeleton();
+
+    try {
+      if (api()?.isConfigured()) {
+        state.posts = await api().fetchPublished({ limit: 80 });
+        state.mode = "supabase";
+        return;
+      }
+    } catch (error) {
+      console.warn(error.message);
+    }
+
+    state.posts = demoPosts;
+    state.mode = "demo";
   }
 
   function bindEvents() {
@@ -290,7 +318,7 @@
       }
 
       if (saveButton) {
-        showToast("Saving posts arrives after authentication.");
+        showToast(state.mode === "supabase" ? "Open the prompt to save or interact." : "Saving posts arrives after authentication.");
       }
     });
   }
@@ -317,18 +345,19 @@
     elements.toolCount = document.querySelector("[data-tool-count]");
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", async function () {
     cacheElements();
 
     if (!elements.feed) {
       return;
     }
 
+    await loadPosts();
     renderCategories();
     renderTools();
     renderHeroStats();
     renderMiniLists();
     bindEvents();
-    scheduleRender();
+    renderFeed();
   });
 })();
