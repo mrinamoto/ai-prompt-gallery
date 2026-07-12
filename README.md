@@ -1,56 +1,43 @@
 # AI Prompt Gallery
 
-A beginner-friendly Pinterest-style AI image prompt discovery website.
+A modern Pinterest-style AI prompt discovery website built with HTML5, CSS3, vanilla JavaScript, and Supabase.
 
-This project will use:
+AI Prompt Gallery lets visitors browse AI-generated images, open detailed prompt pages, search by prompt metadata, save and rate posts, create collections, and manage content through a secure admin dashboard. It is intentionally beginner-friendly: there is no React, Next.js, bundler, paid build service, or complicated framework.
+
+## Features
+
+- Responsive masonry-style discovery homepage
+- Search by title, description, prompt, category, tags, AI tool, and model
+- Post details with image, prompt, negative prompt, metadata, likes, saves, ratings, comments, and similar posts
+- Supabase Auth with sign up, login, logout, forgot password, session persistence, and Google login support
+- Likes, one-rating-per-user, comments, saved posts, profiles, and collections
+- Public and private collections
+- Secure admin dashboard for uploads, posts, prompts, categories, tags, users, comments, and analytics
+- Light and dark mode
+- Mobile-friendly layout
+- Supabase Row Level Security and Storage policies
+- GitHub-ready static project structure
+
+## Tech Stack
 
 - HTML5
 - CSS3
 - Vanilla JavaScript
-- Supabase for database, authentication, and image storage
-- GitHub for version control
-- Free deployment through Cloudflare Pages or GitHub Pages
+- Supabase Database
+- Supabase Auth
+- Supabase Storage
+- Git and GitHub
+- Cloudflare Pages or GitHub Pages for free deployment
 
-No React, Next.js, npm build step, or paid tools are required.
-
-## Current Phase
-
-Phase 11 is complete: Security and Supabase Row Level Security.
-
-Phase 1 created the local project folder, Git-ready housekeeping files, VS Code helper settings, and a small browser test page.
-
-Phase 2 added the real website structure, CSS design tokens, reusable components, responsive layout rules, and light/dark theme foundations.
-
-Phase 3 added the real homepage experience with temporary demo data, responsive image cards, filters, search, sorting, loading states, mobile navigation, and trending/new/popular sections.
-
-Phase 4 added the post details page with full image, prompt, copy button, metadata, ratings, likes, saves, comments preview, and similar posts.
-
-Phase 5 added the Supabase client placeholder, full database SQL, storage bucket setup, Row Level Security policies, and beginner setup steps.
-
-Phase 6 added sign up, login, logout, forgot password, session persistence, Google login support, protected account page routing, and profile creation.
-
-Phase 7 connected post detail interactions to Supabase for real database posts: likes, saves, one rating per user, comments, comment editing/deleting, and view tracking.
-
-Phase 8 added a dedicated search page, search suggestions, filters, related searches, trending content, similar prompts, and "You May Also Like" recommendations. Supabase projects use SQL RPC helpers; unconfigured projects fall back to demo search.
-
-Phase 9 added editable profiles, saved posts, liked posts, custom collections, public/private collection settings, post add/remove tools, public profile pages, and collection detail pages.
-
-Phase 10 added a secure admin dashboard for image uploads, post creation and editing, prompt management, categories, tags, users, comments, and basic analytics. Admins can add content without editing HTML.
-
-Phase 11 audited the database and frontend security surface, narrowed Supabase grants, added role-safe RPC helpers, hardened admin role changes, protected system-managed post fields, validated post uploads, and folder-scoped Storage policies.
-
-## Folder Structure
+## Project Structure
 
 ```text
 ai-prompt-gallery/
-|-- .vscode/
-|   |-- extensions.json
-|   `-- settings.json
 |-- assets/
 |   |-- css/
 |   |   |-- admin.css
-|   |   |-- base.css
 |   |   |-- auth.css
+|   |   |-- base.css
 |   |   |-- components.css
 |   |   |-- home.css
 |   |   |-- layout.css
@@ -60,8 +47,6 @@ ai-prompt-gallery/
 |   |   |-- search.css
 |   |   |-- tokens.css
 |   |   `-- utilities.css
-|   |-- icons/
-|   |-- images/
 |   `-- js/
 |       |-- account.js
 |       |-- admin.js
@@ -91,11 +76,14 @@ ai-prompt-gallery/
 |   |-- phase-08-search-recommendations.md
 |   |-- phase-09-user-profiles-collections.md
 |   |-- phase-10-admin-dashboard.md
-|   `-- phase-11-security-rls.md
+|   |-- phase-11-security-rls.md
+|   `-- phase-12-github-upload.md
 |-- tools/
 |   `-- local-server.js
 |-- .editorconfig
+|-- .env.example
 |-- .gitignore
+|-- LICENSE
 |-- account.html
 |-- admin.html
 |-- auth.html
@@ -103,88 +91,150 @@ ai-prompt-gallery/
 |-- index.html
 |-- post.html
 |-- profile.html
-|-- README.md
 |-- search.html
 `-- setup-check.html
 ```
 
-## Important Security Note
+## Quick Start On Windows 11
 
-Later, Supabase will give you two kinds of keys:
+Open PowerShell in the project folder:
 
-- The anon/public key can be used in browser JavaScript.
-- The service role key must never be placed in frontend code or committed to GitHub.
+```powershell
+cd "C:\Users\User\Documents\Codex\2026-07-08\act-as-a-senior-full-stack\outputs\ai-prompt-gallery"
+```
 
-This project will only use the anon/public key in the frontend.
-
-## How To Test This Phase
-
-Open `index.html` in your browser to use the demo homepage, then click an image to open its details page.
-
-For Supabase setup, run `database/schema.sql` in Supabase SQL Editor, then run `database/make-admin.sql` after replacing the placeholder email.
-
-For auth testing, run a simple local server and open `auth.html`:
+Start the local server:
 
 ```powershell
 node tools/local-server.js
 ```
 
-Then visit:
+Open:
 
 ```text
-http://localhost:5500/auth.html
+http://localhost:5500
 ```
 
-If Node is not installed on your Windows machine, use the VS Code Live Server extension or try `python -m http.server 5500`.
+If Node.js is not installed, use the VS Code Live Server extension or Python:
 
-Use `account.html` to test the protected account page.
+```powershell
+python -m http.server 5500
+```
 
-Use a real Supabase post UUID to test Phase 7 interactions:
+## Supabase Setup
+
+1. Create a free Supabase project.
+2. Open Supabase SQL Editor.
+3. Run:
 
 ```text
-http://localhost:5500/post.html?id=YOUR_SUPABASE_POST_UUID
+database/schema.sql
 ```
 
-Use the Phase 8 search page:
+4. Open:
 
 ```text
-http://localhost:5500/search.html?q=portrait
+assets/js/supabase-client.js
 ```
 
-Use the Phase 9 account library and public pages:
+5. Replace the placeholders with your Supabase Project URL and anon public key.
+6. Sign up through `auth.html`.
+7. To make yourself admin, open:
 
 ```text
-http://localhost:5500/account.html
-http://localhost:5500/profile.html?username=YOUR_USERNAME
-http://localhost:5500/collection.html?id=YOUR_COLLECTION_UUID
+database/make-admin.sql
 ```
 
-Use the Phase 10 admin dashboard after promoting your account with `database/make-admin.sql`:
+8. Replace the placeholder email with your sign-in email and run it in Supabase SQL Editor.
+
+## Security Notes
+
+- Only use the Supabase anon public key in frontend JavaScript.
+- Never commit a Supabase `service_role` key.
+- `.env`, `.env.local`, and other local secret files are ignored by Git.
+- `database/schema.sql` enables Row Level Security and narrows browser grants.
+- Admin actions are protected by Supabase policies and role-checking RPC functions.
+- Storage uploads are scoped to the `post-images/posts/{admin-user-id}/` folder pattern.
+
+## Main Pages
 
 ```text
-http://localhost:5500/admin.html
+index.html       Homepage and masonry feed
+search.html      Search and recommendations
+post.html        Post details
+auth.html        Sign up, login, forgot password
+account.html     User profile, saved posts, liked posts, collections
+profile.html     Public profile page
+collection.html  Collection detail page
+admin.html       Admin dashboard
 ```
 
-For Phase 11 security hardening, run the latest full `database/schema.sql` in Supabase SQL Editor, or follow the update notes in:
+## GitHub Upload Commands
 
-```text
-docs/phase-11-security-rls.md
+Use these commands from PowerShell after you create or sign in to a GitHub account.
+
+### First Upload With GitHub CLI
+
+Install GitHub CLI first if needed: https://cli.github.com/
+
+```powershell
+cd "C:\Users\User\Documents\Codex\2026-07-08\act-as-a-senior-full-stack\outputs\ai-prompt-gallery"
+git status
+git branch -M main
+gh auth login
+gh repo create ai-prompt-gallery --public --source . --remote origin --push
 ```
 
-Open `setup-check.html` in your browser if you want to confirm the Phase 1 setup page still works.
+### First Upload Without GitHub CLI
 
-You can also open this folder in VS Code and run `git status` to check your local changes.
+1. Create an empty public repository on GitHub named `ai-prompt-gallery`.
+2. Do not add a README, license, or `.gitignore` on GitHub because this project already has them.
+3. Run:
 
-## Phase Guides
+```powershell
+cd "C:\Users\User\Documents\Codex\2026-07-08\act-as-a-senior-full-stack\outputs\ai-prompt-gallery"
+git status
+git branch -M main
+git remote add origin https://github.com/YOUR-USERNAME/ai-prompt-gallery.git
+git push -u origin main
+```
 
-- `docs/phase-01-project-setup.md`
-- `docs/phase-02-folder-structure-design-system.md`
-- `docs/phase-03-homepage-masonry-feed.md`
-- `docs/phase-04-post-details-page.md`
-- `docs/phase-05-supabase-setup.md`
-- `docs/phase-06-authentication.md`
-- `docs/phase-07-likes-ratings-comments-saves.md`
-- `docs/phase-08-search-recommendations.md`
-- `docs/phase-09-user-profiles-collections.md`
-- `docs/phase-10-admin-dashboard.md`
-- `docs/phase-11-security-rls.md`
+Replace `YOUR-USERNAME` with your GitHub username.
+
+### Update GitHub After Future Changes
+
+```powershell
+cd "C:\Users\User\Documents\Codex\2026-07-08\act-as-a-senior-full-stack\outputs\ai-prompt-gallery"
+git status
+git add .
+git commit -m "Describe your update"
+git push
+```
+
+## Free Deployment
+
+### GitHub Pages
+
+1. Push this project to GitHub.
+2. Open the repository on GitHub.
+3. Go to `Settings > Pages`.
+4. Set source to `Deploy from a branch`.
+5. Choose `main` and `/root`.
+6. Save.
+
+### Cloudflare Pages
+
+1. Push this project to GitHub.
+2. Open Cloudflare Pages.
+3. Connect your GitHub repository.
+4. Use no build command.
+5. Use `/` as the output folder.
+6. Deploy.
+
+## Documentation
+
+The `docs/` folder contains the full phase-by-phase build history, including Supabase setup, authentication, interactions, search, profiles, admin, security, and GitHub upload notes.
+
+## License
+
+This project is released under the MIT License. See [LICENSE](LICENSE).
