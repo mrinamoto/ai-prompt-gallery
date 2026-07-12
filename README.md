@@ -77,12 +77,16 @@ ai-prompt-gallery/
 |   |-- phase-09-user-profiles-collections.md
 |   |-- phase-10-admin-dashboard.md
 |   |-- phase-11-security-rls.md
-|   `-- phase-12-github-upload.md
+|   |-- phase-12-github-upload.md
+|   `-- phase-13-free-deployment.md
 |-- tools/
 |   `-- local-server.js
 |-- .editorconfig
 |-- .env.example
 |-- .gitignore
+|-- .nojekyll
+|-- _headers
+|-- 404.html
 |-- LICENSE
 |-- account.html
 |-- admin.html
@@ -91,6 +95,7 @@ ai-prompt-gallery/
 |-- index.html
 |-- post.html
 |-- profile.html
+|-- robots.txt
 |-- search.html
 `-- setup-check.html
 ```
@@ -213,6 +218,8 @@ git push
 
 ## Free Deployment
 
+This is a static website, so it does not need a build step. The easiest free deployment is GitHub Pages. Cloudflare Pages is also supported.
+
 ### GitHub Pages
 
 1. Push this project to GitHub.
@@ -221,19 +228,62 @@ git push
 4. Set source to `Deploy from a branch`.
 5. Choose `main` and `/root`.
 6. Save.
+7. Visit:
+
+```text
+https://YOUR-USERNAME.github.io/ai-prompt-gallery/
+```
 
 ### Cloudflare Pages
 
 1. Push this project to GitHub.
-2. Open Cloudflare Pages.
-3. Connect your GitHub repository.
-4. Use no build command.
-5. Use `/` as the output folder.
-6. Deploy.
+2. Open Cloudflare `Workers & Pages`.
+3. Create a Pages project and connect your GitHub repository.
+4. Use these settings:
+
+```text
+Framework preset: None
+Production branch: main
+Build command: leave empty
+Build output directory: /
+Root directory: leave empty
+```
+
+5. Deploy.
+
+### Supabase Live URL Settings
+
+After deployment, open Supabase `Authentication > URL Configuration`.
+
+Set `Site URL` to your live website URL.
+
+For GitHub Pages, add:
+
+```text
+https://YOUR-USERNAME.github.io/ai-prompt-gallery/
+https://YOUR-USERNAME.github.io/ai-prompt-gallery/auth.html
+https://YOUR-USERNAME.github.io/ai-prompt-gallery/account.html
+http://localhost:5500/**
+```
+
+For Cloudflare Pages, add:
+
+```text
+https://ai-prompt-gallery.pages.dev/
+https://ai-prompt-gallery.pages.dev/auth.html
+https://ai-prompt-gallery.pages.dev/account.html
+http://localhost:5500/**
+```
+
+Full deployment notes are in:
+
+```text
+docs/phase-13-free-deployment.md
+```
 
 ## Documentation
 
-The `docs/` folder contains the full phase-by-phase build history, including Supabase setup, authentication, interactions, search, profiles, admin, security, and GitHub upload notes.
+The `docs/` folder contains the full phase-by-phase build history, including Supabase setup, authentication, interactions, search, profiles, admin, security, GitHub upload, and free deployment notes.
 
 ## License
 
